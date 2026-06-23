@@ -10,7 +10,7 @@ fn main() {
         command.trim().to_string();
         match command.as_str() {
             "exit" => break,
-            "echo" => println!("{}", command),
+            "echo" => println!("{}", command[5..]),
             _ => println!("{}: command not found", command.trim()),
         }
     }
