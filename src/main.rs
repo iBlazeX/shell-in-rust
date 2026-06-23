@@ -10,7 +10,7 @@ fn main() {
         if let Some((cmd, args)) = command.split_once(' ') {
             match cmd {
                 "exit" => break,
-                "echo" => print("{}", args),
+                "echo" => print!("{}", args),
                 _ => println!("{}: command not found", cmd),
             }
         }
