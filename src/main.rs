@@ -7,12 +7,11 @@ fn main() {
         io::stdout().flush().unwrap();
         let mut command = String::new();
         io::stdin().read_line(&mut command).unwrap();
-        if let Some((cmd, args)) = command.split_once(' ') {
-            match cmd {
-                "exit" => break,
-                "echo" => print!("{}", args),
-                _ => print!("{}: command not found", cmd),
-            }
+        let (cmd, args) = command.split_once(' ').unwrap_or((command.as_str(), ""));
+        match cmd {
+            "exit" => break,
+            "echo" => print!("{}", args),
+            _ => print!("{}: command not found", cmd),
         }
     }
 }
