@@ -8,7 +8,6 @@ fn main() {
         let mut command = String::new();
         io::stdin().read_line(&mut command).unwrap();
         if let Some((cmd, args)) = command.split_once(' ') {
-            println!("{}", command.trim());
             match cmd {
                 "exit" => break,
                 "echo" => println!("{}", args),
