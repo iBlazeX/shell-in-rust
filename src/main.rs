@@ -7,7 +7,7 @@ fn main() {
         io::stdout().flush().unwrap();
         let mut command = String::new();
         io::stdin().read_line(&mut command).unwrap();
-        println!(_ => println!("{}", command.trim());
+        println!("{}", command.trim());
         match command.trim() {
             "exit" => break,
             "echo" => println!("{}", &command[5..]),
