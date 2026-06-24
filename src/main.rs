@@ -40,11 +40,10 @@ fn main() {
             "echo" => println!("{}", args),
             "type" => match args {
                 "exit" | "echo" | "type" => println!("{} is a shell builtin", args),
-                _ => {
-                	match find_exec(args) {
-               			Some(path) => println!("{} is {}", args, args),
-                 		None => println!("{}: not found", args),
-                }
+                _ => match find_exec(args) {
+                    Some(path) => println!("{} is {}", args, args),
+                    None => println!("{}: not found", args),
+                },
             },
             _ => println!("{}: command not found", cmd),
         }
