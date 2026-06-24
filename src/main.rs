@@ -1,12 +1,12 @@
-use std::os::unix::process::CommandExt;
-use std::process::Command;
 #[allow(unused_imports)]
 use std::{
     env,
     fs::{self, Metadata},
     io::{self, Write},
     os::unix::fs::PermissionsExt,
+    os::unix::process::CommandExt,
     path::{self, PathBuf},
+    process::Command,
 };
 
 fn is_exec(meta: &Metadata) -> bool {
