@@ -15,7 +15,7 @@ fn main() {
             "exit" => break,
             "echo" => println!("{}", args),
             "type" => match args {
-                "exit" | "echo" | "type" => println!("{} is a shell extension", args),
+                "exit" | "echo" | "type" => println!("{} is a shell builtin", args),
                 _ => println!("{}: not found", args),
             },
             _ => println!("{}: command not found", cmd),
