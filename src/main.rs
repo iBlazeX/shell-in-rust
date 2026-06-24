@@ -41,7 +41,7 @@ fn main() {
             "type" => match args {
                 "exit" | "echo" | "type" => println!("{} is a shell builtin", args),
                 _ => match find_exec(args) {
-                    Some(path) => println!("{} is {}", args, args),
+                    Some(path) => println!("{} is {}", args, path.display()),
                     None => println!("{}: not found", args),
                 },
             },
