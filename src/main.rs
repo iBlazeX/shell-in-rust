@@ -37,7 +37,7 @@ fn main() {
         let (cmd, args) = (parts[0], &parts[1..]);
         match cmd {
             "exit" => break,
-            "echo" => println!("{}", args),
+            "echo" => println!("{}", args.join(" ")),
             "type" => {
                 let arg = args[0];
                 match arg {
