@@ -1,10 +1,11 @@
-use ::std::env;
-use std::fs::Metadata;
 #[allow(unused_imports)]
-use std::io::{self, Write};
-use std::os::unix::fs::PermissionsExt;
-use std::path;
-use std::{env::split_paths, fs::metadata, path::PathBuf};
+use std::{
+    env,
+    fs::{self, Metadata},
+    io::{self, Write},
+    os::unix::fs::PermissionsExt,
+    path::{self, PathBuf},
+};
 
 fn is_exec(meta: &Metadata) -> bool {
     meta.permissions().mode() & 0o111 != 0
@@ -17,7 +18,7 @@ pub fn find_exec(args: &str) -> Option<PathBuf> {
         if !candidate.is_file() {
             continue;
         }
-        let meta = metadata(&candidate).unwrap();
+        let meta = fs::metadata(&candidate).unwrap();
         if is_exec(&meta) {
             return Some(candidate);
         }
