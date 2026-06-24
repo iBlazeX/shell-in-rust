@@ -1,3 +1,4 @@
+use std::process::Command;
 #[allow(unused_imports)]
 use std::{
     env,
@@ -46,8 +47,8 @@ fn main() {
                     None => println!("{}: not found", args),
                 },
             },
-            _ => match find_exec(args) {
-                Some(path) => println!("{} is {}", args, path.display()),
+            _ => match find_exec(cmd) {
+                Some(path) => Command::new(path).status().unwrap(),
                 None => println!("{}: not found", args),
             },
         }
