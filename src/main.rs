@@ -8,7 +8,7 @@ fn main() {
         let mut command = String::new();
         io::stdin().read_line(&mut command).unwrap();
         let (cmd, args) = command
-            .split_once([' ', "\n"])
+            .split_once([' ', '\n'])
             .unwrap_or((command.as_str(), ""));
         match cmd {
             "exit" => break,
