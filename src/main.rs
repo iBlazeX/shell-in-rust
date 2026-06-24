@@ -13,6 +13,10 @@ fn main() {
         match cmd {
             "exit" => break,
             "echo" => print!("{}", args),
+            "type" => match args {
+                "exit" | "echo" | "type" => print!("{} is a shell extension", args),
+                _ => println!("{}: not found", args),
+            },
             _ => println!("{}: command not found", cmd),
         }
     }
