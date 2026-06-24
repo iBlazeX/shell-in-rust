@@ -33,20 +33,21 @@ fn main() {
         io::stdout().flush().unwrap();
         let mut command = String::new();
         io::stdin().read_line(&mut command).unwrap();
-        let (cmd, args) = command
-            .trim()
-            .split_once(' ')
-            .unwrap_or((command.trim(), ""));
+        let parts: Vec<&str> = command.trim().split_whitespace().collect();
+        let (cmd, args) = (parts[0], &parts[1..]);
         match cmd {
             "exit" => break,
             "echo" => println!("{}", args),
-            "type" => match args {
-                "exit" | "echo" | "type" => println!("{} is a shell builtin", args),
-                _ => match find_exec(args) {
-                    Some(path) => println!("{} is {}", args, path.display()),
-                    None => println!("{}: not found", args),
-                },
-            },
+            "type" => {
+                let arg = args[0];
+                match arg {
+                    "exit" | "echo" | "type" => println!("{} is a shell builtin", arg),
+                    _ => match find_exec(arg) {
+                        Some(path) => println!("{} is {}", arg, path.display()),
+                        None => println!("{}: not found", arg),
+                    },
+                }
+            }
             _ => match find_exec(cmd) {
                 Some(path) => {
                     Command::new(path).status().unwrap();
