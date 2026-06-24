@@ -10,7 +10,7 @@ fn main() {
         let (cmd, args) = command
             .trim()
             .split_once(' ')
-            .unwrap_or((command.as_str(), ""));
+            .unwrap_or((command.trim(), ""));
         match cmd {
             "exit" => break,
             "echo" => println!("{}", args),
