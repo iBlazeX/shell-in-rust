@@ -46,7 +46,10 @@ fn main() {
                     None => println!("{}: not found", args),
                 },
             },
-            _ => println!("{}: command not found", cmd),
+            _ => match find_exec(args) {
+                Some(path) => println!("{} is {}", args, path.display()),
+                None => println!("{}: not found", args),
+            },
         }
     }
 }
