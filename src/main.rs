@@ -13,9 +13,9 @@ fn main() {
             .unwrap_or((command.as_str(), ""));
         match cmd {
             "exit" => break,
-            "echo" => print!("{}", args),
+            "echo" => println!("{}", args),
             "type" => match args {
-                "exit" | "echo" | "type" => print!("{} is a shell extension", args),
+                "exit" | "echo" | "type" => println!("{} is a shell extension", args),
                 _ => println!("{}: not found", args),
             },
             _ => println!("{}: command not found", cmd),
