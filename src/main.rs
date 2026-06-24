@@ -11,8 +11,8 @@ fn is_exec(meta: &Metadata) -> bool {
 }
 
 pub fn find_exec(args: &str) -> Option<PathBuf> {
-    let path = var_os("PATH").unwrap();
-    for dir in split_paths(&path) {
+    let path = env::var_os("PATH").unwrap();
+    for dir in env::split_paths(&path) {
         let candidate = dir.join(args);
         if !candidate.is_file() {
             continue;
