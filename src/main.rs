@@ -52,7 +52,7 @@ fn main() {
                 Some(path) => {
                     Command::new(path).status().unwrap();
                 }
-                None => println!("{}: not found", args),
+                None => println!("{}: not found", cmd),
             },
         }
     }
