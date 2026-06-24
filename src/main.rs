@@ -50,7 +50,7 @@ fn main() {
             }
             _ => match find_exec(cmd) {
                 Some(path) => {
-                    Command::new(path).status().unwrap();
+                    Command::new(path).args(args).status().unwrap();
                 }
                 None => println!("{}: not found", cmd),
             },
