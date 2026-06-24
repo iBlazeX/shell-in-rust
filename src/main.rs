@@ -1,3 +1,4 @@
+use std::os::unix::process::CommandExt;
 use std::process::Command;
 #[allow(unused_imports)]
 use std::{
@@ -50,7 +51,7 @@ fn main() {
             }
             _ => match find_exec(cmd) {
                 Some(path) => {
-                    Command::new(path).arg(cmd).args(args).status().unwrap();
+                    Command::new(path).arg0(cmd).args(args).status().unwrap();
                 }
                 None => println!("{}: not found", cmd),
             },
