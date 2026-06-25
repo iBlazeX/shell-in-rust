@@ -41,7 +41,7 @@ fn main() {
             "echo" => println!("{}", args.join(" ")),
             "pwd" => {
                 let cwd = env::current_dir().unwrap();
-                println!("{}", cwd);
+                println!("{}", cwd.display());
             }
             "type" => {
                 let arg = args[0];
