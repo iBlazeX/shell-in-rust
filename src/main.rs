@@ -45,7 +45,7 @@ fn main() {
             }
             "cd" => {
                 if (args[0] == "~") {
-                    env::set_current_dir("/home");
+                    env::set_current_dir(env::home_dir().unwrap());
                 } else {
                     match env::set_current_dir(args[0]) {
                         Ok(_) => {}
