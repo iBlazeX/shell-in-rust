@@ -33,12 +33,20 @@ fn parse_args(parts: &str) -> Vec<String> {
     let mut args = Vec::new();
     let mut current = String::new();
     let mut in_quotes = false;
+    let mut in_db_quotes = false;
 
     for c in parts.chars() {
         match c {
-            '\'' => in_quotes = !in_quotes,
+            '\'' => {
+                if !in_db_quotes {
+                    in_quotes = !in_quotes;
+                } else {
+                    current.push(c);
+                }
+            }
+            '\"' => in_db_quotes = !in_db_quotes,
             ' ' => {
-                if in_quotes {
+                if in_quotes || in_db_quotes {
                     current.push(c);
                 } else if !current.is_empty() {
                     args.push(mem::take(&mut current));
