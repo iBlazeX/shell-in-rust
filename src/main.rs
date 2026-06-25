@@ -29,8 +29,8 @@ pub fn find_exec(cmd: &str) -> Option<PathBuf> {
     None
 }
 
-fn parse_command(line: &str) -> (String, Vec<String> {
-    let mut args = Vec::new();
+fn tokeniz(line: &str) -> Vec<String> {
+    let mut token = Vec::new();
     let mut current = String::new();
     let mut in_quotes = false;
     let mut in_db_quotes = false;
@@ -68,7 +68,7 @@ fn parse_command(line: &str) -> (String, Vec<String> {
                 if in_quotes || in_db_quotes {
                     current.push(c);
                 } else if !current.is_empty() {
-                    args.push(mem::take(&mut current));
+                    token.push(mem::take(&mut current));
                 }
             }
             _ => current.push(c),
@@ -78,9 +78,9 @@ fn parse_command(line: &str) -> (String, Vec<String> {
         current.push('\\');
     }
     if !current.is_empty() {
-        args.push(current);
+        token.push(current);
     }
-    (args[0], args[1..])
+    token
 }
 
 fn main() {
@@ -92,10 +92,9 @@ fn main() {
         if command.trim().is_empty() {
             continue;
         }
-        let (cmd, args) = parse_command(command.trim());
-
-
-
+        let token: Vec<String> = tokenize(command.trim());
+        let cmd = &token[0];
+        let args = &token[1..];
         match cmd {
             "exit" => break,
             "echo" => println!("{}", args.join(" ")),
