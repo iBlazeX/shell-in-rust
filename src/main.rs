@@ -51,6 +51,7 @@ fn main() {
                     if in_quotes {
                         current.push(c);
                     } else {
+                        println!("{}", current);
                         args.push(mem::take(&mut current));
                         current.clear();
                     }
