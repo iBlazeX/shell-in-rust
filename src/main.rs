@@ -50,7 +50,7 @@ fn main() {
                     if in_quotes {
                         current.push(c);
                     } else {
-                        args.push(current);
+                        args.push(&current);
                         current.clear();
                     }
                 }
