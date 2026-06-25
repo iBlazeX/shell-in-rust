@@ -50,14 +50,15 @@ fn main() {
                 ' ' => {
                     if in_quotes {
                         current.push(c);
-                    } else {
-                        println!("{}", current);
+                    } else if !current.is_empty() {
                         args.push(mem::take(&mut current));
-                        current.clear();
                     }
                 }
                 _ => current.push(c),
             }
+        }
+        if !current.is_empty() {
+            args.push(current);
         }
 
         match cmd {
