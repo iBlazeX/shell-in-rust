@@ -14,10 +14,10 @@ fn is_exec(meta: &Metadata) -> bool {
     meta.permissions().mode() & 0o111 != 0
 }
 
-pub fn find_exec(args: &str) -> Option<PathBuf> {
+pub fn find_exec(cmd: &str) -> Option<PathBuf> {
     let path = env::var_os("PATH").unwrap();
     for dir in env::split_paths(&path) {
-        let candidate = dir.join(args);
+        let candidate = dir.join(cmd);
         if !candidate.is_file() {
             continue;
         }
@@ -43,7 +43,13 @@ fn parse_args(parts: &str) -> Vec<String> {
             continue;
         }
         match c {
-            '\\' => back = !back,
+            '\\' => {
+                if in_quotes {
+                    current.push(c);
+                } else {
+                    back = true;
+                }
+            }
             '\'' => {
                 if !in_db_quotes {
                     in_quotes = !in_quotes;
@@ -51,7 +57,13 @@ fn parse_args(parts: &str) -> Vec<String> {
                     current.push(c);
                 }
             }
-            '\"' => in_db_quotes = !in_db_quotes,
+            '\"' => {
+                if !in_quotes {
+                    in_db_quotes = !in_db_quotes;
+                } else {
+                    current.push(c);
+                }
+            }
             ' ' => {
                 if in_quotes || in_db_quotes {
                     current.push(c);
@@ -61,6 +73,9 @@ fn parse_args(parts: &str) -> Vec<String> {
             }
             _ => current.push(c),
         }
+    }
+    if back {
+        current.push('\\');
     }
     if !current.is_empty() {
         args.push(current);
@@ -74,10 +89,14 @@ fn main() {
         io::stdout().flush().unwrap();
         let mut command = String::new();
         io::stdin().read_line(&mut command).unwrap();
+        if command.trim().is_empty() {
+            continue;
+        }
         let (cmd, parts) = command
             .trim()
             .split_once(' ')
             .unwrap_or((command.trim(), ""));
+
         let args = parse_args(parts.trim());
 
         match cmd {
@@ -88,8 +107,12 @@ fn main() {
                 println!("{}", cwd.display());
             }
             "cd" => {
+                if args.is_empty() {
+                    println!("cd: No directory specified");
+                    continue;
+                }
                 if args[0] == "~" {
-                    env::set_current_dir(env::home_dir().unwrap());
+                    env::set_current_dir(env::home_dir().unwrap()).unwrap();
                 } else {
                     match env::set_current_dir(&args[0]) {
                         Ok(_) => {}
@@ -98,10 +121,16 @@ fn main() {
                 }
             }
             "type" => {
-                let arg = args[0].as_str();
-                match arg {
-                    "exit" | "echo" | "type" | "pwd" => println!("{} is a shell builtin", arg),
-                    _ => match find_exec(&arg) {
+                if args.is_empty() {
+                    println!("type: missing argument");
+                    continue;
+                }
+                let arg = &args[0];
+                match arg.as_str() {
+                    "exit" | "echo" | "type" | "pwd" | "cd" => {
+                        println!("{} is a shell builtin", arg)
+                    }
+                    _ => match find_exec(arg) {
                         Some(path) => println!("{} is {}", arg, path.display()),
                         None => println!("{}: not found", arg),
                     },
