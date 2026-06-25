@@ -93,8 +93,7 @@ fn main() {
             continue;
         }
         let token: Vec<String> = tokenize(command.trim());
-        let cmd = &token[0];
-        let args = &token[1..];
+        let (cmd, args) = (&token[0], &token[1..]);
         match cmd.as_str() {
             "exit" => break,
             "echo" => println!("{}", args.join(" ")),
