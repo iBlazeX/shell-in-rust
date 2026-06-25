@@ -45,7 +45,7 @@ fn main() {
             }
             "cd" => match env::set_current_dir(args[0]) {
                 Ok(_) => {}
-                Err(_) => println!("cd : {}: No such file or directory", args[0]),
+                Err(_) => println!("cd: {}: No such file or directory", args[0]),
             },
             "type" => {
                 let arg = args[0];
