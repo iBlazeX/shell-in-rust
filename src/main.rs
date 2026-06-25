@@ -70,7 +70,7 @@ fn main() {
                 if args[0] == "~" {
                     env::set_current_dir(env::home_dir().unwrap());
                 } else {
-                    match env::set_current_dir(args[0]) {
+                    match env::set_current_dir(&args[0]) {
                         Ok(_) => {}
                         Err(_) => println!("cd: {}: No such file or directory", args[0]),
                     }
