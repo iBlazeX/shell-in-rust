@@ -43,10 +43,16 @@ fn main() {
                 let cwd = env::current_dir().unwrap();
                 println!("{}", cwd.display());
             }
-            "cd" => match env::set_current_dir(args[0]) {
-                Ok(_) => {}
-                Err(_) => println!("cd: {}: No such file or directory", args[0]),
-            },
+            "cd" => {
+                if (args[0] == "~") {
+                    env::set_current_dir("/home");
+                } else {
+                    match env::set_current_dir(args[0]) {
+                        Ok(_) => {}
+                        Err(_) => println!("cd: {}: No such file or directory", args[0]),
+                    }
+                }
+            }
             "type" => {
                 let arg = args[0];
                 match arg {
