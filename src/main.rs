@@ -1,3 +1,4 @@
+use std::mem;
 #[allow(unused_imports)]
 use std::{
     env,
@@ -50,7 +51,7 @@ fn main() {
                     if in_quotes {
                         current.push(c);
                     } else {
-                        args.push(&current);
+                        args.push(mem::take(&mut current));
                         current.clear();
                     }
                 }
