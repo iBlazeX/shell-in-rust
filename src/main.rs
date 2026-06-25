@@ -29,14 +29,14 @@ pub fn find_exec(cmd: &str) -> Option<PathBuf> {
     None
 }
 
-fn parse_args(parts: &str) -> Vec<String> {
+fn parse_command(line: &str) -> (String, Vec<String> {
     let mut args = Vec::new();
     let mut current = String::new();
     let mut in_quotes = false;
     let mut in_db_quotes = false;
     let mut back = false;
 
-    for c in parts.chars() {
+    for c in line.chars() {
         if back {
             current.push(c);
             back = false;
@@ -92,12 +92,9 @@ fn main() {
         if command.trim().is_empty() {
             continue;
         }
-        let (cmd, parts) = command
-            .trim()
-            .split_once(' ')
-            .unwrap_or((command.trim(), ""));
+        let (cmd, args) = parse_command(command.trim());
 
-        let args = parse_args(parts.trim());
+
 
         match cmd {
             "exit" => break,
