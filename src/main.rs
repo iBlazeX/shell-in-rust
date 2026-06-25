@@ -43,6 +43,10 @@ fn main() {
                 let cwd = env::current_dir().unwrap();
                 println!("{}", cwd.display());
             }
+            "cd" => {
+                let arg = args[1];
+                env::set_current_dir(arg);
+            }
             "type" => {
                 let arg = args[0];
                 match arg {
