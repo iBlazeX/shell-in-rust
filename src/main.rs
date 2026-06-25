@@ -40,7 +40,7 @@ fn main() {
             "exit" => break,
             "echo" => println!("{}", args.join(" ")),
             "pwd" => {
-                let cwd = env::current_dir();
+                let cwd = env::current_dir()?;
                 println!("{}", cwd);
             }
             "type" => {
