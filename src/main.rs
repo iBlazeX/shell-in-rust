@@ -29,7 +29,7 @@ pub fn find_exec(cmd: &str) -> Option<PathBuf> {
     None
 }
 
-fn tokeniz(line: &str) -> Vec<String> {
+fn tokenize(line: &str) -> Vec<String> {
     let mut token = Vec::new();
     let mut current = String::new();
     let mut in_quotes = false;
@@ -93,8 +93,8 @@ fn main() {
             continue;
         }
         let token: Vec<String> = tokenize(command.trim());
-        let cmd = token[0];
-        let args = token[1..];
+        let cmd = &token[0];
+        let args = &token[1..];
         match cmd.as_str() {
             "exit" => break,
             "echo" => println!("{}", args.join(" ")),
