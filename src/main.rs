@@ -1,9 +1,9 @@
-use std::mem;
 #[allow(unused_imports)]
 use std::{
     env,
     fs::{self, Metadata},
     io::{self, Write},
+    mem,
     os::unix::fs::PermissionsExt,
     os::unix::process::CommandExt,
     path::{self, PathBuf},
@@ -29,6 +29,30 @@ pub fn find_exec(args: &str) -> Option<PathBuf> {
     None
 }
 
+fn parse_args(parts: &str) -> Vec<String> {
+    let mut args = Vec::new();
+    let mut current = String::new();
+    let mut in_quotes = false;
+
+    for c in parts.chars() {
+        match c {
+            '\'' => in_quotes = !in_quotes,
+            ' ' => {
+                if in_quotes {
+                    current.push(c);
+                } else if !current.is_empty() {
+                    args.push(mem::take(&mut current));
+                }
+            }
+            _ => current.push(c),
+        }
+    }
+    if !current.is_empty() {
+        args.push(current);
+    }
+    args
+}
+
 fn main() {
     loop {
         print!("$ ");
@@ -39,27 +63,7 @@ fn main() {
             .trim()
             .split_once(' ')
             .unwrap_or((command.trim(), ""));
-        let parts = parts.trim();
-        let mut args = Vec::new();
-        let mut current = String::new();
-        let mut in_quotes = false;
-
-        for c in parts.chars() {
-            match c {
-                '\'' => in_quotes = !in_quotes,
-                ' ' => {
-                    if in_quotes {
-                        current.push(c);
-                    } else if !current.is_empty() {
-                        args.push(mem::take(&mut current));
-                    }
-                }
-                _ => current.push(c),
-            }
-        }
-        if !current.is_empty() {
-            args.push(current);
-        }
+        let args = parse_args(parts.trim());
 
         match cmd {
             "exit" => break,
