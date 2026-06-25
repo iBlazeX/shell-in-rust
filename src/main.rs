@@ -34,8 +34,30 @@ fn main() {
         io::stdout().flush().unwrap();
         let mut command = String::new();
         io::stdin().read_line(&mut command).unwrap();
-        let parts: Vec<&str> = command.trim().split_whitespace().collect();
-        let (cmd, args) = (parts[0], &parts[1..]);
+        let (cmd, parts) = command
+            .trim()
+            .split_once(' ')
+            .unwrap_or((command.trim(), ""));
+        let parts = parts.trim();
+        let mut args = Vec::new();
+        let mut current = String::new();
+        let mut in_quotes = false;
+
+        for c in args.chars() {
+            match c {
+                '\'' => in_quotes = !in_quotes,
+                ' ' => {
+                    if in_quotes {
+                        current.push(c);
+                    } else {
+                        args.push(current);
+                        current.clear();
+                    }
+                }
+                _ => current.push(c),
+            }
+        }
+
         match cmd {
             "exit" => break,
             "echo" => println!("{}", args.join(" ")),
