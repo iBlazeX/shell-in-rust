@@ -34,9 +34,16 @@ fn parse_args(parts: &str) -> Vec<String> {
     let mut current = String::new();
     let mut in_quotes = false;
     let mut in_db_quotes = false;
+    let mut back = false;
 
     for c in parts.chars() {
+        if back {
+            current.push(c);
+            back = false;
+            continue;
+        }
         match c {
+            '\\' => back = !back,
             '\'' => {
                 if !in_db_quotes {
                     in_quotes = !in_quotes;
