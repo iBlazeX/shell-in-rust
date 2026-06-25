@@ -80,7 +80,7 @@ fn parse_command(line: &str) -> (String, Vec<String> {
     if !current.is_empty() {
         args.push(current);
     }
-    args
+    (args[0], args[1..])
 }
 
 fn main() {
