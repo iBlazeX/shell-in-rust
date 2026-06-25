@@ -39,6 +39,10 @@ fn main() {
         match cmd {
             "exit" => break,
             "echo" => println!("{}", args.join(" ")),
+            "pwd" => {
+                let cwd = env::current_dir();
+                println!("{}", cwd);
+            }
             "type" => {
                 let arg = args[0];
                 match arg {
