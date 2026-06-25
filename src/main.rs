@@ -43,7 +43,7 @@ fn main() {
         let mut current = String::new();
         let mut in_quotes = false;
 
-        for c in args.chars() {
+        for c in parts.chars() {
             match c {
                 '\'' => in_quotes = !in_quotes,
                 ' ' => {
@@ -66,7 +66,7 @@ fn main() {
                 println!("{}", cwd.display());
             }
             "cd" => {
-                if (args[0] == "~") {
+                if args[0] == "~" {
                     env::set_current_dir(env::home_dir().unwrap());
                 } else {
                     match env::set_current_dir(args[0]) {
@@ -76,10 +76,10 @@ fn main() {
                 }
             }
             "type" => {
-                let arg = args[0];
+                let arg = args[0].as_str();
                 match arg {
                     "exit" | "echo" | "type" | "pwd" => println!("{} is a shell builtin", arg),
-                    _ => match find_exec(arg) {
+                    _ => match find_exec(&arg) {
                         Some(path) => println!("{} is {}", arg, path.display()),
                         None => println!("{}: not found", arg),
                     },
