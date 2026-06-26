@@ -22,7 +22,7 @@ fn main() {
         let (cmd, args, stout) = tokenize(command.trim());
         let mut file;
         let out: &mut dyn Write = if let Some(path) = stout {
-            file = File::create(path).unwrap();
+            file = fs::File::create(path).unwrap();
             &mut file
         } else {
             &mut io::stdout()
