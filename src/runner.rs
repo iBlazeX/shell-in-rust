@@ -54,7 +54,7 @@ fn pwd(out: &mut dyn Write) {
 fn cd(args: &Vec<String>, err: &mut dyn Write, ){
     if args.is_empty() {
         writeln!(err, "cd: No directory specified").unwrap();
-        return ShellAction::Continue;
+        return;
     }
     if args[0] == "~" {
         env::set_current_dir(env::home_dir().unwrap()).unwrap();
@@ -68,7 +68,7 @@ fn cd(args: &Vec<String>, err: &mut dyn Write, ){
 fn type_cmd(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write){
     if args.is_empty() {
         writeln!(out, "type: missing argument").unwrap();
-        return ShellAction::Continue;
+        return;
     }
     let arg = &args[0];
     match arg.as_str() {
