@@ -1,3 +1,5 @@
+use crate::parser::ParsedCmd;
+
 pub enum ShellAction {
     Continue,
     Exit,
