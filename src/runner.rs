@@ -1,9 +1,8 @@
 use crate::tokenizer::ParsedCmd;
 use std::{
     env, fs,
+    fs::Metadata,
     io::{self, Write},
-    os::unix::fs::PermissionsExt,
-    os::unix::process::CommandExt,
     path::{self, PathBuf},
     process::Command,
 };

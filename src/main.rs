@@ -3,7 +3,12 @@ mod tokenizer;
 #[allow(unused_imports)]
 use runner::{ShellAction, run};
 use std::fs::Metadata;
-use std::{os::unix::fs::PermissionsExt, os::unix::process::CommandExt};
+use std::{
+    fs, io,
+    io::{self, Write},
+    os::unix::fs::PermissionsExt,
+    os::unix::process::CommandExt,
+};
 use tokenizer::tokenize;
 
 fn main() {
