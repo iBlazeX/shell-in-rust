@@ -90,7 +90,8 @@ fn cat(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write) {
     }
 }
 fn run_external(parsed: &ParsedCmd) {
-    match find_exec(&parsed.cmd.as_str()) {
+    let cmd = parsed.cmd;
+    match find_exec(&cmd.as_str()) {
         Some(path) => {
             let mut command = Command::new(path);
             command.arg0(cmd).args(args);
