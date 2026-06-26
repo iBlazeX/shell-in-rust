@@ -64,10 +64,14 @@ fn main() {
                     },
                 }
             }
-            "cat" => match fs::read_to_string(for file in &args {file}) {
-                Ok(content) =>
-                Err(_) => println!("cat: {}: No such file or directory", args[0]),
-            },
+            "cat" => {
+                for file in &args {
+                    match fs::read_to_string(file) {
+                        Ok(content) => write!(out, "{}", content).unwrap(),
+                        Err(_) => println!("cat: {}: No such file or directory", args[0]),
+                    }
+                }
+            }
             _ => match find_exec(cmd.as_str()) {
                 Some(path) => {
                     let mut command = Command::new(path);
