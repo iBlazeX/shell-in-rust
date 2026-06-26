@@ -74,7 +74,7 @@ fn main() {
                     command.arg0(cmd).args(args);
 
                     if let Some(path) = stout {
-                        let file = fs::File::create(path.unwrap());
+                        let file = fs::File::create(path).unwrap();
 
                         command.stdout(file);
                     }
