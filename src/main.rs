@@ -10,6 +10,13 @@ use std::{
     process::Command,
 };
 
+struct ParsedCmd {
+    cmd: String,
+    args: Vec<String>,
+    stout: Option<String>,
+    sterr: Option<String>,
+}
+
 fn main() {
     loop {
         print!("$ ");
@@ -19,13 +26,26 @@ fn main() {
         if command.trim().is_empty() {
             continue;
         }
-        let (cmd, args, stout) = tokenize(command.trim());
+        let ParsedCommand {
+            cmd,
+            args,
+            stdout: stout,
+            stderr: sterr,
+        } = tokenize(command.trim());
         let mut file;
+        let mut errfile;
+
         let out: &mut dyn Write = if let Some(path) = &stout {
             file = fs::File::create(path).unwrap();
             &mut file
         } else {
             &mut io::stdout()
+        };
+        let errout: &mut dyn Write = if let Some(path) = &sterr {
+            errfile = fs::File::create(path).unwrap();
+            &mut errfile
+        } else {
+            &mut io::stderr()
         };
         match cmd.as_str() {
             "exit" => break,
@@ -36,7 +56,7 @@ fn main() {
             }
             "cd" => {
                 if args.is_empty() {
-                    println!("cd: No directory specified");
+                    writeln!(errout, "cd: No directory specified").unwrap();
                     continue;
                 }
                 if args[0] == "~" {
@@ -44,13 +64,15 @@ fn main() {
                 } else {
                     match env::set_current_dir(&args[0]) {
                         Ok(_) => {}
-                        Err(_) => println!("cd: {}: No such file or directory", args[0]),
+                        Err(_) => {
+                            writeln!(errout, "cd: {}: No such file or directory", args[0]).unwrap()
+                        }
                     }
                 }
             }
             "type" => {
                 if args.is_empty() {
-                    println!("type: missing argument");
+                    writeln!(out, "type: missing argument").unwrap();
                     continue;
                 }
                 let arg = &args[0];
@@ -60,7 +82,7 @@ fn main() {
                     }
                     _ => match find_exec(arg) {
                         Some(path) => writeln!(out, "{} is {}", arg, path.display()).unwrap(),
-                        None => println!("{}: not found", arg),
+                        None => writeln!(errout, "{}: not found", arg).unwrap(),
                     },
                 }
             }
@@ -68,7 +90,9 @@ fn main() {
                 for file in &args {
                     match fs::read_to_string(file) {
                         Ok(content) => write!(out, "{}", content).unwrap(),
-                        Err(_) => println!("cat: {}: No such file or directory", file),
+                        Err(_) => {
+                            writeln!(errout, "cat: {}: No such file or directory", file).unwrap()
+                        }
                     }
                 }
             }
@@ -84,7 +108,7 @@ fn main() {
                     }
                     command.status().unwrap();
                 }
-                None => println!("{}: not found", cmd),
+                None => writeln!(errout, "{}: not found", cmd).unwrap(),
             },
         }
     }
@@ -109,14 +133,16 @@ fn find_exec(cmd: &str) -> Option<PathBuf> {
     None
 }
 
-fn tokenize(line: &str) -> (String, Vec<String>, Option<String>) {
+fn tokenize(line: &str) -> ParsedCmd {
     let mut token = Vec::new();
     let mut current = String::new();
     let mut in_quotes = false;
     let mut in_db_quotes = false;
     let mut backslash = false;
     let mut expect_stdout = false;
+    let mut expect_stderr = false;
     let mut stout = None;
+    let mut sterr = None;
 
     for c in line.chars() {
         if backslash {
@@ -153,6 +179,9 @@ fn tokenize(line: &str) -> (String, Vec<String>, Option<String>) {
                     if expect_stdout {
                         stout = Some(mem::take(&mut current));
                         expect_stdout = false;
+                    } else if expect_stderr {
+                        sterr = Some(mem::take(&mut current));
+                        expect_stderr = false;
                     } else {
                         token.push(mem::take(&mut current));
                     }
@@ -162,10 +191,14 @@ fn tokenize(line: &str) -> (String, Vec<String>, Option<String>) {
                 if !in_quotes && !in_db_quotes && !backslash {
                     if current == "1" {
                         current.clear();
+                        expect_stdout = true;
+                    } else if current == "2" {
+                        current.clear();
+                        expect_stderr = true;
                     } else if !current.is_empty() {
                         token.push(mem::take(&mut current));
+                        expect_stdout = true;
                     }
-                    expect_stdout = true;
                 } else {
                     current.push(c);
                 }
@@ -178,9 +211,16 @@ fn tokenize(line: &str) -> (String, Vec<String>, Option<String>) {
     }
     if expect_stdout {
         stout = Some(current);
+    } else if expect_stderr {
+        sterr = Some(current);
     } else if !current.is_empty() {
         token.push(current);
     }
     let cmd = token.remove(0);
-    (cmd, token, stout)
+    ParsedCmd {
+        cmd,
+        args: (token),
+        stout,
+        sterr,
+    }
 }
