@@ -32,7 +32,7 @@ fn main() {
             "echo" => writeln!(out, "{}", args.join(" ")).unwrap(),
             "pwd" => {
                 let cwd = env::current_dir().unwrap();
-                write!(out, "{}", cwd.display()).unwrap();
+                writeln!(out, "{}", cwd.display()).unwrap();
             }
             "cd" => {
                 if args.is_empty() {
