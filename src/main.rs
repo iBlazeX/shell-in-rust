@@ -213,27 +213,27 @@ fn execute(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
                 }
             }
         }
-        _ => {
-            let mut command = Command::new(path);
-            command.arg0(cmd).args(args);
-            match find_exec(cmd.as_str()) {
-                Some(path) => {
-                    if let Some(path) = stout {
-                        let file = fs::File::create(path).unwrap();
+        _ => match find_exec(cmd.as_str()) {
+            Some(path) => {
+                let mut command = Command::new(path);
+                command.arg0(cmd).args(args);
+                if let Some(path) = stout {
+                    let file = fs::File::create(path).unwrap();
 
-                        command.stdout(file);
-                    }
-                    command.status().unwrap();
+                    command.stdout(file);
                 }
-                None => {
-                    if let Some(path) = stout {
-                        let file = fs::File::create(path).unwrap();
-                        command.stderr(file);
-                    }
-                    command.status().unwrap();
-                }
+                command.status().unwrap();
             }
-        }
+            None => {
+                let mut command = Command::new(path);
+                command.arg0(cmd).args(args);
+                if let Some(path) = stout {
+                    let file = fs::File::create(path).unwrap();
+                    command.stderr(file);
+                }
+                command.status().unwrap();
+            }
+        },
     }
     ShellAction::Continue
 }
