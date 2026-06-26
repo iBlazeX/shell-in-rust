@@ -1,10 +1,10 @@
 use std::mem;
 
 pub struct ParsedCmd {
-    cmd: String,
-    args: Vec<String>,
-    stout: Option<String>,
-    sterr: Option<String>,
+    pub cmd: String,
+    pub args: Vec<String>,
+    pub stout: Option<String>,
+    pub sterr: Option<String>,
 }
 
 pub fn tokenize(line: &str) -> ParsedCmd {

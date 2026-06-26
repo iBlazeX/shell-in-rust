@@ -2,10 +2,7 @@ mod runner;
 mod tokenizer;
 #[allow(unused_imports)]
 use runner::{ShellAction, run};
-use std::{
-    fs, io,
-    io::{self, Write},
-};
+use std::{fs, io, io::Write};
 use tokenizer::tokenize;
 
 fn main() {
