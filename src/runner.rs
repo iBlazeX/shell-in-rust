@@ -23,7 +23,7 @@ pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
         "cd" => cd(args, err),
         "type" => type_cmd(args, out, err),
         "cat" => cat(args, out, err),
-        _ => run_external(cmd, args, sterr, stout),
+        _ => run_external(cmd, args, sterr, stout, err),
     }
     ShellAction::Continue
 }
