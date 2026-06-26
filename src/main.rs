@@ -64,8 +64,8 @@ fn main() {
                     },
                 }
             }
-            "cat" => match fs::read_to_string(&args[0]) {
-                Ok(content) => write!(out, "{}", content).unwrap(),
+            "cat" => match fs::read_to_string(for file in &args {file}) {
+                Ok(content) =>
                 Err(_) => println!("cat: {}: No such file or directory", args[0]),
             },
             _ => match find_exec(cmd.as_str()) {
