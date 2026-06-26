@@ -1,4 +1,4 @@
-use std::fs::metadata;
+use std::fs::Metadata;
 #[allow(unused_imports)]
 use std::{
     env, fs,
