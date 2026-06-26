@@ -26,11 +26,11 @@ fn main() {
         if command.trim().is_empty() {
             continue;
         }
-        let ParsedCommand {
+        let ParsedCmd {
             cmd,
             args,
-            stdout: stout,
-            stderr: sterr,
+            stout,
+            sterr,
         } = tokenize(command.trim());
         let mut file;
         let mut errfile;
