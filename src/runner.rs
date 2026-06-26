@@ -99,7 +99,7 @@ fn run_external(
     stout: &Option<String>,
     err: &mut dyn Write,
 ) {
-    match find_exec(cmd.as_str()) {
+    match find_exec(cmd) {
         Some(path) => {
             let mut command = Command::new(path);
             command.arg0(cmd).args(args);
