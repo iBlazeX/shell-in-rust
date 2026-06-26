@@ -68,7 +68,7 @@ fn main() {
                 for file in &args {
                     match fs::read_to_string(file) {
                         Ok(content) => write!(out, "{}", content).unwrap(),
-                        Err(_) => println!("cat: {}: No such file or directory", args[0]),
+                        Err(_) => println!("cat: {}: No such file or directory", file),
                     }
                 }
             }
