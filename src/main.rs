@@ -59,7 +59,7 @@ fn main() {
                         writeln!(out, "{} is a shell builtin", arg).unwrap();
                     }
                     _ => match find_exec(arg) {
-                        Some(path) => write!(out, "{} is {}", arg, path.display()).unwrap(),
+                        Some(path) => writeln!(out, "{} is {}", arg, path.display()).unwrap(),
                         None => println!("{}: not found", arg),
                     },
                 }
