@@ -70,7 +70,15 @@ fn main() {
             },
             _ => match find_exec(cmd.as_str()) {
                 Some(path) => {
-                    Command::new(path).arg0(cmd).args(args).status().unwrap();
+                    let mut command = Command::new(path);
+                    command.arg0(cmd).args(args);
+
+                    if let Some(path) = stout {
+                        let file = fs::File::create(path.unwrap());
+
+                        command.stdout(file);
+                    }
+                    command.status().unwrap();
                 }
                 None => println!("{}: not found", cmd),
             },
