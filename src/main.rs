@@ -206,7 +206,7 @@ fn execute(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
             }
         }
         "cat" => {
-            for file in &args {
+            for file in args {
                 match fs::read_to_string(file) {
                     Ok(content) => write!(out, "{}", content).unwrap(),
                     Err(_) => writeln!(err, "cat: {}: No such file or directory", file).unwrap(),
