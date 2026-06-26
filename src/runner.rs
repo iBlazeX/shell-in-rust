@@ -92,7 +92,13 @@ fn cat(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write) {
         }
     }
 }
-fn run_external(cmd: &str, args: &Vec<String>, sterr: &Option<String>, stout: &Option<String>) {
+fn run_external(
+    cmd: &str,
+    args: &Vec<String>,
+    sterr: &Option<String>,
+    stout: &Option<String>,
+    err: &mut dyn Write,
+) {
     match find_exec(&cmd.as_str()) {
         Some(path) => {
             let mut command = Command::new(path);
@@ -102,7 +108,7 @@ fn run_external(cmd: &str, args: &Vec<String>, sterr: &Option<String>, stout: &O
                 let file = fs::File::create(path).unwrap();
                 command.stdout(file);
             }
-            if let Some(path) = &parsed.sterr {
+            if let Some(path) = &sterr {
                 let file = fs::File::create(path).unwrap();
                 command.stderr(file);
             }
