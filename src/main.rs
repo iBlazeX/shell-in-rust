@@ -91,7 +91,7 @@ fn main() {
                     match fs::read_to_string(file) {
                         Ok(content) => write!(out, "{}", content).unwrap(),
                         Err(_) => {
-                            writeln!(errout, "cat: {}: No such file or directory", file).unwrap()
+                            write!(errout, "cat: {}: No such file or directory", file).unwrap()
                         }
                     }
                 }
