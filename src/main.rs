@@ -156,7 +156,7 @@ fn tokenize(line: &str) -> (String, Vec<String>, Option<String>) {
             }
             '>' => {
                 if !in_quotes && !in_db_quotes && !backslash {
-                    if current == 1 {
+                    if current == '1' {
                         current.clear();
                     } else if !current.is_empty() {
                         token.push(mem::take(&mut current));
