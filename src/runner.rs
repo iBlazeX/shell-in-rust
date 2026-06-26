@@ -11,7 +11,10 @@ pub enum ShellAction {
 
 pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> ShellAction {
     let ParsedCmd {
-        cmd, args, stout, ..
+        cmd,
+        args,
+        stout,
+        sterr,
     } = parsed;
     match cmd.as_str() {
         "exit" => return ShellAction::Exit,
@@ -20,7 +23,7 @@ pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
         "cd" => cd(args, err),
         "type" => type_cmd(args, out, err),
         "cat" => cat(args, out, err),
-        _ => run_external(parsed),
+        _ => run_external(cmd, args, sterr, stout),
     }
     ShellAction::Continue
 }
@@ -89,8 +92,7 @@ fn cat(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write) {
         }
     }
 }
-fn run_external(parsed: &ParsedCmd) {
-    let cmd = parsed.cmd;
+fn run_external(cmd: &str, args: &Vec<String>, sterr: &Option<String>, stout: &Option<String>) {
     match find_exec(&cmd.as_str()) {
         Some(path) => {
             let mut command = Command::new(path);
