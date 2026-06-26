@@ -1,4 +1,4 @@
-use crate::parser::ParsedCmd;
+use crate::tokenizer::ParsedCmd;
 
 pub enum ShellAction {
     Continue,

@@ -1,9 +1,8 @@
 mod runner;
 mod tokenizer;
-use execute::{ShellAction, execute};
-use parser::tokenize;
-use std::fs::Metadata;
 #[allow(unused_imports)]
+use runner::{ShellAction, execute};
+use std::fs::Metadata;
 use std::{
     env, fs,
     io::{self, Write},
@@ -13,6 +12,7 @@ use std::{
     path::{self, PathBuf},
     process::Command,
 };
+use tokenizer::tokenize;
 
 fn main() {
     loop {
