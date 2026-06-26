@@ -45,13 +45,13 @@ fn find_exec(cmd: &str) -> Option<PathBuf> {
 }
 
 fn echo(args: &Vec<String>, out: &mut dyn Write) {
-	writeln!(out, "{}", args.join(" ")).unwrap(),
+    writeln!(out, "{}", args.join(" ")).unwrap();
 }
 fn pwd(out: &mut dyn Write) {
     let cwd = env::current_dir().unwrap();
     writeln!(out, "{}", cwd.display()).unwrap();
 }
-fn cd(args: &Vec<String>, err: &mut dyn Write, ){
+fn cd(args: &Vec<String>, err: &mut dyn Write) {
     if args.is_empty() {
         writeln!(err, "cd: No directory specified").unwrap();
         return;
@@ -65,7 +65,7 @@ fn cd(args: &Vec<String>, err: &mut dyn Write, ){
         }
     }
 }
-fn type_cmd(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write){
+fn type_cmd(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write) {
     if args.is_empty() {
         writeln!(out, "type: missing argument").unwrap();
         return;
@@ -81,7 +81,7 @@ fn type_cmd(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write){
         },
     }
 }
-fn cat(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write){
+fn cat(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write) {
     for file in args {
         match fs::read_to_string(file) {
             Ok(content) => write!(out, "{}", content).unwrap(),
@@ -90,21 +90,21 @@ fn cat(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write){
     }
 }
 fn run_external(parsed: &ParsedCmd) {
-	match find_exec(cmd.as_str()) {
-            Some(path) => {
-                let mut command = Command::new(path);
-                command.arg0(cmd).args(args);
+    match find_exec(&parsed.cmd.as_str()) {
+        Some(path) => {
+            let mut command = Command::new(path);
+            command.arg0(cmd).args(args);
 
-                if let Some(path) = stout {
-                    let file = fs::File::create(path).unwrap();
-                    command.stdout(file);
-                }
-                if let Some(path) = &parsed.sterr {
-                    let file = fs::File::create(path).unwrap();
-                    command.stderr(file);
-                }
-                command.status().unwrap();
+            if let Some(path) = stout {
+                let file = fs::File::create(path).unwrap();
+                command.stdout(file);
             }
-            None => writeln!(err, "{}: not found", cmd).unwrap(),
+            if let Some(path) = &parsed.sterr {
+                let file = fs::File::create(path).unwrap();
+                command.stderr(file);
+            }
+            command.status().unwrap();
         }
+        None => writeln!(err, "{}: not found", cmd).unwrap(),
+    }
 }
