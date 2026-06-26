@@ -134,9 +134,12 @@ fn tokenize(line: &str) -> ParsedCmd {
                     } else if current == "2" {
                         current.clear();
                         expect_stderr = true;
-                    } else if !current.is_empty() {
-                        token.push(mem::take(&mut current));
-                        expect_stdout = true;
+                    } else {
+                        if !current.is_empty() {
+                            token.push(mem::take(&mut current));
+                        } else {
+                            expect_stdout = true;
+                        }
                     }
                 } else {
                     current.push(c);
