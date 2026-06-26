@@ -29,10 +29,10 @@ fn main() {
         };
         match cmd.as_str() {
             "exit" => break,
-            "echo" => writeln!(out, "{}", args.join(" ")).unwrap(),
+            "echo" => write!(out, "{}", args.join(" ")).unwrap(),
             "pwd" => {
                 let cwd = env::current_dir().unwrap();
-                writeln!(out, "{}", cwd.display()).unwrap();
+                write!(out, "{}", cwd.display()).unwrap();
             }
             "cd" => {
                 if args.is_empty() {
@@ -56,16 +56,16 @@ fn main() {
                 let arg = &args[0];
                 match arg.as_str() {
                     "exit" | "echo" | "type" | "pwd" | "cd" => {
-                        writeln!(out, "{} is a shell builtin", arg).unwrap();
+                        write!(out, "{} is a shell builtin", arg).unwrap();
                     }
                     _ => match find_exec(arg) {
-                        Some(path) => writeln!(out, "{} is {}", arg, path.display()).unwrap(),
+                        Some(path) => write!(out, "{} is {}", arg, path.display()).unwrap(),
                         None => println!("{}: not found", arg),
                     },
                 }
             }
             "cat" => match fs::read_to_string(&args[0]) {
-                Ok(content) => writeln!(out, "{}", content).unwrap(),
+                Ok(content) => write!(out, "{}", content).unwrap(),
                 Err(_) => println!("cat: {}: No such file or directory", args[0]),
             },
             _ => match find_exec(cmd.as_str()) {
