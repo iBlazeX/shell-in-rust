@@ -1,3 +1,5 @@
+use std::mem;
+
 pub struct ParsedCmd {
     cmd: String,
     args: Vec<String>,

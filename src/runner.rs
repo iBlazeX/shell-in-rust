@@ -1,4 +1,12 @@
 use crate::tokenizer::ParsedCmd;
+use std::{
+    env, fs,
+    io::{self, Write},
+    os::unix::fs::PermissionsExt,
+    os::unix::process::CommandExt,
+    path::{self, PathBuf},
+    process::Command,
+};
 
 pub enum ShellAction {
     Continue,
