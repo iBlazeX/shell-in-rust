@@ -1,7 +1,7 @@
 mod runner;
 mod tokenizer;
 #[allow(unused_imports)]
-use runner::{ShellAction, execute};
+use runner::{ShellAction, run};
 use std::fs::Metadata;
 use std::{
     env, fs,
