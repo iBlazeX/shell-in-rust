@@ -1,7 +1,11 @@
 use crate::tokenizer::ParsedCmd;
 use std::{
-    env, fs, fs::Metadata, io::Write, os::unix::fs::PermissionsExt, os::unix::process::CommandExt,
-    path::PathBuf, process::Command,
+    env,
+    fs::{self, Metadata},
+    io::Write,
+    os::unix::{fs::PermissionsExt, process::CommandExt},
+    path::PathBuf,
+    process::Command,
 };
 
 pub enum ShellAction {
@@ -15,6 +19,7 @@ pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
         args,
         stout,
         sterr,
+        append,
     } = parsed;
     match cmd.as_str() {
         "exit" => return ShellAction::Exit,
@@ -23,7 +28,7 @@ pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
         "cd" => cd(args, err),
         "type" => type_cmd(args, out, err),
         "cat" => cat(args, out, err),
-        _ => run_external(cmd, args, sterr, stout, err),
+        _ => run_external(cmd, args, sterr, stout, err, append),
     }
     ShellAction::Continue
 }
@@ -31,7 +36,6 @@ pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
 fn is_exec(meta: &Metadata) -> bool {
     meta.permissions().mode() & 0o111 != 0
 }
-
 fn find_exec(cmd: &str) -> Option<PathBuf> {
     let path = env::var_os("PATH").unwrap();
     for dir in env::split_paths(&path) {
@@ -46,7 +50,6 @@ fn find_exec(cmd: &str) -> Option<PathBuf> {
     }
     None
 }
-
 fn echo(args: &Vec<String>, out: &mut dyn Write) {
     writeln!(out, "{}", args.join(" ")).unwrap();
 }
@@ -98,6 +101,7 @@ fn run_external(
     sterr: &Option<String>,
     stout: &Option<String>,
     err: &mut dyn Write,
+    append: &bool,
 ) {
     match find_exec(cmd) {
         Some(path) => {
@@ -105,7 +109,8 @@ fn run_external(
             command.arg0(cmd).args(args);
 
             if let Some(path) = stout {
-                let file = fs::File::create(path).unwrap();
+                let file = fs::File::options().append(*append).open(path).unwrap();
+
                 command.stdout(file);
             }
             if let Some(path) = &sterr {

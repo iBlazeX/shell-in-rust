@@ -5,6 +5,7 @@ pub struct ParsedCmd {
     pub args: Vec<String>,
     pub stout: Option<String>,
     pub sterr: Option<String>,
+    pub append: bool,
 }
 
 pub fn tokenize(line: &str) -> ParsedCmd {
@@ -17,6 +18,7 @@ pub fn tokenize(line: &str) -> ParsedCmd {
     let mut expect_stderr = false;
     let mut stout = None;
     let mut sterr = None;
+    let mut append = false;
 
     for c in line.chars() {
         if backslash {
@@ -69,6 +71,12 @@ pub fn tokenize(line: &str) -> ParsedCmd {
                     } else if current == "2" {
                         current.clear();
                         expect_stderr = true;
+                    } else if current == ">" {
+                        current.clear();
+                        append = true;
+                        if !expect_stderr {
+                            expect_stdout = true;
+                        }
                     } else {
                         if !current.is_empty() {
                             token.push(mem::take(&mut current));
@@ -99,5 +107,6 @@ pub fn tokenize(line: &str) -> ParsedCmd {
         args: (token),
         stout,
         sterr,
+        append,
     }
 }
