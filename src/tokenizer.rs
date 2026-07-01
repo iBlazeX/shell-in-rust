@@ -19,9 +19,8 @@ pub fn tokenize(line: &str) -> ParsedCmd {
     let mut stout = None;
     let mut sterr = None;
     let mut append = false;
-    let mut saw_redirect = false;
-
-    for c in line.chars() {
+    let mut chars = line.chars().peekable();
+    while let Some(c) = chars.next() {
         if backslash {
             current.push(c);
             backslash = false;
@@ -42,7 +41,7 @@ pub fn tokenize(line: &str) -> ParsedCmd {
                     current.push(c);
                 }
             }
-            '\"' => {
+            '"' => {
                 if !in_quotes {
                     in_db_quotes = !in_db_quotes;
                 } else {
@@ -65,28 +64,26 @@ pub fn tokenize(line: &str) -> ParsedCmd {
                 }
             }
             '>' => {
-                if !in_quotes && !in_db_quotes && !backslash {
-                    if saw_redirect {
-                        append = true;
-                    }
-
-                    if current == "1" {
-                        current.clear();
-                        expect_stdout = true;
-                    } else if current == "2" {
-                        current.clear();
-                        expect_stderr = true;
-                    } else {
-                        if !current.is_empty() {
-                            token.push(mem::take(&mut current));
-                        } else {
-                            saw_redirect = !saw_redirect;
-                            current.clear();
-                            expect_stdout = true;
-                        }
-                    }
-                } else {
+                if in_quotes || in_db_quotes {
                     current.push(c);
+                    continue;
+                }
+                if current == "1" {
+                    current.clear();
+                    expect_stdout = true;
+                } else if current == "2" {
+                    current.clear();
+                    expect_stderr = true;
+                } else {
+                    if !current.is_empty() {
+                        token.push(mem::take(&mut current));
+                    }
+                    expect_stdout = true;
+                }
+                // Handle >>
+                if chars.peek() == Some(&'>') {
+                    append = true;
+                    chars.next(); // consume second '>'
                 }
             }
             _ => current.push(c),
@@ -105,7 +102,7 @@ pub fn tokenize(line: &str) -> ParsedCmd {
     let cmd = token.remove(0);
     ParsedCmd {
         cmd,
-        args: (token),
+        args: token,
         stout,
         sterr,
         append,
