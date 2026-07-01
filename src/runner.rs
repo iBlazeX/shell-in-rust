@@ -134,7 +134,7 @@ fn run_external(
             }
             if *bg {
                 let child = command.spawn().unwrap();
-                println!("{}", child.id());
+                println!("[1] {}", child.id());
             } else {
                 command.status().unwrap();
             }
