@@ -28,6 +28,7 @@ pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
         "cd" => cd(args, err),
         "type" => type_cmd(args, out, err),
         "cat" => cat(args, out, err),
+        "jobs" => return ShellAction::Continue,
         _ => run_external(cmd, args, sterr, stout, err, append),
     }
     ShellAction::Continue
@@ -78,7 +79,7 @@ fn type_cmd(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write) {
     }
     let arg = &args[0];
     match arg.as_str() {
-        "exit" | "echo" | "type" | "pwd" | "cd" => {
+        "exit" | "echo" | "type" | "pwd" | "cd" | "jobs" => {
             writeln!(out, "{} is a shell builtin", arg).unwrap();
         }
         _ => match find_exec(arg) {
