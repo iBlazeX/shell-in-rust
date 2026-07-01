@@ -18,7 +18,13 @@ fn main() {
         let mut file;
         let mut errfile;
         let out: &mut dyn Write = if let Some(path) = &parsed.stout {
-            file = fs::File::create(path).unwrap();
+            file = fs::File::options()
+                .create(true)
+                .write(true)
+                .append(parsed.append)
+                .truncate(!parsed.append)
+                .open(path)
+                .unwrap();
             &mut file
         } else {
             &mut io::stdout()
