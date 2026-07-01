@@ -133,7 +133,8 @@ fn run_external(
                 command.stderr(file);
             }
             if *bg {
-                command.spawn().unwrap();
+                let pid = command.spawn().unwrap();
+                println!("{}", pid);
             } else {
                 command.status().unwrap();
             }
