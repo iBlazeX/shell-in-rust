@@ -20,6 +20,7 @@ pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
         stout,
         sterr,
         append,
+        bg,
     } = parsed;
     match cmd.as_str() {
         "exit" => return ShellAction::Exit,
@@ -29,7 +30,7 @@ pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
         "type" => type_cmd(args, out, err),
         "cat" => cat(args, out, err),
         "jobs" => return ShellAction::Continue,
-        _ => run_external(cmd, args, sterr, stout, err, append),
+        _ => run_external(cmd, args, sterr, stout, err, append, bg),
     }
     ShellAction::Continue
 }
@@ -103,6 +104,7 @@ fn run_external(
     stout: &Option<String>,
     err: &mut dyn Write,
     append: &bool,
+    bg: &bool,
 ) {
     match find_exec(cmd) {
         Some(path) => {
@@ -130,7 +132,11 @@ fn run_external(
                     .unwrap();
                 command.stderr(file);
             }
-            command.status().unwrap();
+            if *bg {
+                command.spawn().unwrap();
+            } else {
+                command.status().unwrap();
+            }
         }
         None => writeln!(err, "{}: not found", cmd).unwrap(),
     }

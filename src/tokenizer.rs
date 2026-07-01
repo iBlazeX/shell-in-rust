@@ -6,6 +6,7 @@ pub struct ParsedCmd {
     pub stout: Option<String>,
     pub sterr: Option<String>,
     pub append: bool,
+    pub bg: bool,
 }
 
 pub fn tokenize(line: &str) -> ParsedCmd {
@@ -20,6 +21,7 @@ pub fn tokenize(line: &str) -> ParsedCmd {
     let mut sterr = None;
     let mut append = false;
     let mut chars = line.chars().peekable();
+    let mut bg = false;
     while let Some(c) = chars.next() {
         if backslash {
             current.push(c);
@@ -91,6 +93,10 @@ pub fn tokenize(line: &str) -> ParsedCmd {
     if backslash {
         current.push('\\');
     }
+    if current == "&" {
+        bg = true;
+        current.clear();
+    }
     if expect_stdout {
         stout = Some(current);
     } else if expect_stderr {
@@ -105,5 +111,6 @@ pub fn tokenize(line: &str) -> ParsedCmd {
         stout,
         sterr,
         append,
+        bg,
     }
 }
