@@ -120,7 +120,13 @@ fn run_external(
                 command.stdout(file);
             }
             if let Some(path) = &sterr {
-                let file = fs::File::create(path).unwrap();
+                let file = fs::File::options()
+                    .create(true)
+                    .write(true)
+                    .append(*append)
+                    .truncate(!*append)
+                    .open(path)
+                    .unwrap();
                 command.stderr(file);
             }
             command.status().unwrap();

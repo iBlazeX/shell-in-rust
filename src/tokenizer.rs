@@ -80,7 +80,6 @@ pub fn tokenize(line: &str) -> ParsedCmd {
                     }
                     expect_stdout = true;
                 }
-                // Handle >>
                 if chars.peek() == Some(&'>') {
                     append = true;
                     chars.next(); // consume second '>'

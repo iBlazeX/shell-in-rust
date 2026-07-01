@@ -30,7 +30,13 @@ fn main() {
             &mut io::stdout()
         };
         let err: &mut dyn Write = if let Some(path) = &parsed.sterr {
-            errfile = fs::File::create(path).unwrap();
+            errfile = fs::File::options()
+                .create(true)
+                .write(true)
+                .append(parsed.append)
+                .truncate(!parsed.append)
+                .open(path)
+                .unwrap();
             &mut errfile
         } else {
             &mut io::stderr()
