@@ -19,6 +19,7 @@ pub fn tokenize(line: &str) -> ParsedCmd {
     let mut stout = None;
     let mut sterr = None;
     let mut append = false;
+    let mut saw_redirect = false;
 
     for c in line.chars() {
         if backslash {
@@ -65,22 +66,22 @@ pub fn tokenize(line: &str) -> ParsedCmd {
             }
             '>' => {
                 if !in_quotes && !in_db_quotes && !backslash {
+                    if saw_redirect {
+                        append = true;
+                    }
+
                     if current == "1" {
                         current.clear();
                         expect_stdout = true;
                     } else if current == "2" {
                         current.clear();
                         expect_stderr = true;
-                    } else if current == ">" {
-                        current.clear();
-                        append = true;
-                        if !expect_stderr {
-                            expect_stdout = true;
-                        }
                     } else {
                         if !current.is_empty() {
                             token.push(mem::take(&mut current));
                         } else {
+                            saw_redirect = !saw_redirect;
+                            current.clear();
                             expect_stdout = true;
                         }
                     }

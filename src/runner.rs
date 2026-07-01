@@ -109,7 +109,13 @@ fn run_external(
             command.arg0(cmd).args(args);
 
             if let Some(path) = stout {
-                let file = fs::File::options().append(*append).open(path).unwrap();
+                let file = fs::File::options()
+                    .create(true)
+                    .write(true)
+                    .append(*append)
+                    .truncate(!*append)
+                    .open(path)
+                    .unwrap();
 
                 command.stdout(file);
             }
