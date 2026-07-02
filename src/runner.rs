@@ -155,6 +155,7 @@ fn run_external(
                     token: String::from(cmd),
                     status: crate::jobs::JobStatus::Running,
                 });
+                shell.next_job_id += 1;
             } else {
                 command.status().unwrap();
             }
