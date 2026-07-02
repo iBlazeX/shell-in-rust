@@ -1,3 +1,4 @@
+use crate::jobs::JobStatus;
 use crate::tokenizer::ParsedCmd;
 use crate::{Shell, jobs::Job};
 use std::{
@@ -40,7 +41,10 @@ pub fn run(
             "cat" => cat(args, out, err),
             "jobs" => {
                 let len = shell.jobs.len();
-                for (i, job) in shell.jobs.iter().enumerate() {
+                for (i, job) in shell.jobs.iter_mut().enumerate() {
+                    if job.child.try_wait().unwrap().is_some() {
+                        job.status = JobStatus::Done;
+                    }
                     let marker = match i {
                         x if x + 1 == len => "+",
                         x if x + 2 == len => "-",
@@ -163,7 +167,7 @@ fn run_external(
                     id: shell.next_job_id,
                     child,
                     token: String::from(cmd) + " " + &args.join(" "),
-                    status: crate::jobs::JobStatus::Running,
+                    status: JobStatus::Running,
                 });
                 shell.next_job_id += 1;
             } else {

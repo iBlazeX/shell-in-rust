@@ -9,5 +9,5 @@ pub struct Job {
 #[derive(Debug)]
 pub enum JobStatus {
     Running,
-    Stopped,
+    Done,
 }
