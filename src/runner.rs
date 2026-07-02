@@ -39,7 +39,7 @@ pub fn run(
             "type" => type_cmd(args, out, err),
             "cat" => cat(args, out, err),
             "jobs" => return ShellAction::Continue,
-            _ => run_external(cmd, args, sterr, stout, err, append, bg),
+            _ => run_external(cmd, args, sterr, stout, err, append, bg, shell),
         }
     }
     ShellAction::Continue
