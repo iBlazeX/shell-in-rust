@@ -63,8 +63,9 @@ pub fn run(
                                 ""
                             }
                         },
-                    )
+                    );
                 }
+                shell.jobs.retain_mut(|job| job.status != JobStatus::Done);
             }
             _ => run_external(cmd, args, sterr, stout, err, append, bg, shell),
         }
