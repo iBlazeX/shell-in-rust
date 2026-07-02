@@ -39,38 +39,40 @@ pub fn run(
             "cd" => cd(args, err),
             "type" => type_cmd(args, out, err),
             "cat" => cat(args, out, err),
-            "jobs" => {
-                let len = shell.jobs.len();
-                for (i, job) in shell.jobs.iter_mut().enumerate() {
-                    if job.child.try_wait().unwrap().is_some() {
-                        job.status = JobStatus::Done;
-                    }
-                    let marker = match i {
-                        x if x + 1 == len => "+",
-                        x if x + 2 == len => "-",
-                        _ => " ",
-                    };
-                    println!(
-                        "[{}]{}  {:?}                 {}{}",
-                        job.id,
-                        marker,
-                        job.status,
-                        job.token,
-                        {
-                            if job.status == JobStatus::Running {
-                                " &"
-                            } else {
-                                ""
-                            }
-                        },
-                    );
-                }
-                shell.jobs.retain_mut(|job| job.status != JobStatus::Done);
-            }
+            "jobs" => job(shell),
             _ => run_external(cmd, args, sterr, stout, err, append, bg, shell),
         }
     }
     ShellAction::Continue
+}
+
+pub fn job(shell: &mut Shell) {
+    let len = shell.jobs.len();
+    for (i, job) in shell.jobs.iter_mut().enumerate() {
+        if job.child.try_wait().unwrap().is_some() {
+            job.status = JobStatus::Done;
+        }
+        let marker = match i {
+            x if x + 1 == len => "+",
+            x if x + 2 == len => "-",
+            _ => " ",
+        };
+        println!(
+            "[{}]{}  {:?}                 {}{}",
+            job.id,
+            marker,
+            job.status,
+            job.token,
+            {
+                if job.status == JobStatus::Running {
+                    " &"
+                } else {
+                    ""
+                }
+            },
+        );
+    }
+    shell.jobs.retain_mut(|job| job.status != JobStatus::Done);
 }
 
 fn is_exec(meta: &Metadata) -> bool {
