@@ -156,7 +156,7 @@ fn run_external(
                 shell.jobs.push(Job {
                     id: shell.next_job_id,
                     child,
-                    token: String::from(cmd),
+                    token: String::from(cmd + " " + args.join(" ")),
                     status: crate::jobs::JobStatus::Running,
                 });
                 shell.next_job_id += 1;
