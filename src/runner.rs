@@ -46,7 +46,7 @@ pub fn run(
     ShellAction::Continue
 }
 
-pub fn job(shell: &mut Shell) {
+fn job(shell: &mut Shell) {
     let len = shell.jobs.len();
     for (i, job) in shell.jobs.iter_mut().enumerate() {
         if job.child.try_wait().unwrap().is_some() {
