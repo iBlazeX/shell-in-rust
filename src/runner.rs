@@ -145,12 +145,12 @@ fn run_external(
             }
             if *bg {
                 let child = command.spawn().unwrap();
-                println!("[{}] {}",shell.next_job_id, child.id());
+                println!("[{}] {}", shell.next_job_id, child.id());
                 shell.jobs.push(Job {
                     id: shell.next_job_id,
                     child,
                     token: String::from(cmd),
-                    status: crate::jobs::JobStatus::Running;
+                    status: crate::jobs::JobStatus::Running,
                 });
             } else {
                 command.status().unwrap();
