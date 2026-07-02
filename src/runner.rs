@@ -39,10 +39,16 @@ pub fn run(
             "type" => type_cmd(args, out, err),
             "cat" => cat(args, out, err),
             "jobs" => {
-                for job in &shell.jobs {
+                let len = shell.jobs.len();
+                for (i, job) in shell.jobs.iter().enumerate() {
+                    let marker = match i {
+                        x if x + 1 == len => "+",
+                        x if x + 2 == len => "-",
+                        _ => " ",
+                    };
                     println!(
-                        "[{}]+  {:?}                 {} &",
-                        job.id, job.status, job.token,
+                        "[{}]{}  {:?}                 {} &",
+                        job.id, marker, job.status, job.token
                     )
                 }
             }
