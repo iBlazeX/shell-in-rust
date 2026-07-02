@@ -54,6 +54,9 @@ fn main() {
         } else {
             &mut io::stderr()
         };
+        if shell.jobs.is_empty() {
+            shell.next_job_id = 1;
+        }
         match run(&parsed, &mut shell, out, err) {
             ShellAction::Exit => break,
             ShellAction::Continue => {}
