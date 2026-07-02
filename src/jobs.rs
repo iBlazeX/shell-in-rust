@@ -11,3 +11,15 @@ pub enum JobStatus {
     Running,
     Done,
 }
+
+pub fn reap(shell: &mut Shell) {
+    shell
+        .jobs
+        .retain_mut(|job| match job.child.try_wait().unwrap() {
+            Some(_) => {
+                println!("[{}]+  Done                 {}", job.id, job.token);
+                false
+            }
+            None => true,
+        });
+}

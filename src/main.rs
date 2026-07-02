@@ -2,6 +2,7 @@ mod jobs;
 mod runner;
 mod tokenizer;
 use jobs::Job;
+use jobs::reap;
 #[allow(unused_imports)]
 use runner::{ShellAction, run};
 use std::{fs, io, io::Write};
@@ -18,7 +19,7 @@ fn main() {
         next_job_id: 1,
     };
     loop {
-        reap(&mut shell);
+        reap(shell);
         print!("$ ");
         io::stdout().flush().unwrap();
         let mut command = String::new();
@@ -58,16 +59,4 @@ fn main() {
             ShellAction::Continue => {}
         }
     }
-}
-
-fn reap(shell: &mut Shell) {
-    shell
-        .jobs
-        .retain_mut(|job| match job.child.try_wait().unwrap() {
-            Some(_) => {
-                println!("[{}]+  Done                 {}", job.id, job.token);
-                false
-            }
-            None => true,
-        });
 }
