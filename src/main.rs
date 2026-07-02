@@ -56,6 +56,7 @@ fn main() {
             ShellAction::Exit => break,
             ShellAction::Continue => {}
         }
+        reap(&mut shell);
     }
 }
 
