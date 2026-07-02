@@ -6,7 +6,7 @@ pub struct Job {
     pub token: String,
     pub status: JobStatus,
 }
-
+#[derive(Debug)]
 pub enum JobStatus {
     Running,
     Stopped,
