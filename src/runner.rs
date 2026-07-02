@@ -51,8 +51,18 @@ pub fn run(
                         _ => " ",
                     };
                     println!(
-                        "[{}]{}  {:?}                 {} &",
-                        job.id, marker, job.status, job.token
+                        "[{}]{}  {:?}                 {}{}",
+                        job.id,
+                        marker,
+                        job.status,
+                        job.token,
+                        {
+                            if job.status == JobStatus::Running {
+                                "&"
+                            } else {
+                                ""
+                            }
+                        },
                     )
                 }
             }
