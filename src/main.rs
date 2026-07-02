@@ -19,7 +19,7 @@ fn main() {
         next_job_id: 1,
     };
     loop {
-        reap(shell);
+        reap(&mut shell);
         print!("$ ");
         io::stdout().flush().unwrap();
         let mut command = String::new();

@@ -1,3 +1,4 @@
+use crate::Shell;
 use std::process::Child;
 
 pub struct Job {
@@ -13,13 +14,20 @@ pub enum JobStatus {
 }
 
 pub fn reap(shell: &mut Shell) {
-    shell
-        .jobs
-        .retain_mut(|job| match job.child.try_wait().unwrap() {
-            Some(_) => {
-                println!("[{}]+  Done                 {}", job.id, job.token);
-                false
-            }
-            None => true,
-        });
+    let len = shell.jobs.len();
+
+    for (i, job) in shell.jobs.iter_mut().enumerate() {
+        let marker = match i {
+            x if x + 1 == len => "+",
+            x if x + 2 == len => "-",
+            _ => " ",
+        };
+
+        if job.child.try_wait().unwrap().is_some() {
+            println!("[{}]{}  Done                 {}", job.id, marker, job.token);
+            job.status = JobStatus::Done;
+        }
+    }
+
+    shell.jobs.retain(|job| job.status != JobStatus::Done);
 }
