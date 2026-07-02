@@ -22,15 +22,19 @@ pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
         append,
         bg,
     } = parsed;
-    match cmd.as_str() {
-        "exit" => return ShellAction::Exit,
-        "echo" => echo(args, out),
-        "pwd" => pwd(out),
-        "cd" => cd(args, err),
-        "type" => type_cmd(args, out, err),
-        "cat" => cat(args, out, err),
-        "jobs" => return ShellAction::Continue,
-        _ => run_external(cmd, args, sterr, stout, err, append, bg),
+    if parsed.bg {
+        run_external(cmd, args, sterr, stout, err, append, bg);
+    } else {
+        match cmd.as_str() {
+            "exit" => return ShellAction::Exit,
+            "echo" => echo(args, out),
+            "pwd" => pwd(out),
+            "cd" => cd(args, err),
+            "type" => type_cmd(args, out, err),
+            "cat" => cat(args, out, err),
+            "jobs" => return ShellAction::Continue,
+            _ => run_external(cmd, args, sterr, stout, err, append, bg),
+        }
     }
     ShellAction::Continue
 }
