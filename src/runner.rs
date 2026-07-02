@@ -38,10 +38,14 @@ pub fn run(
             "cd" => cd(args, err),
             "type" => type_cmd(args, out, err),
             "cat" => cat(args, out, err),
-            "jobs" => println!(
-                "[{}]+  {:?}                 {} &",
-                shell.jobs[0].id, shell.jobs[0].status, shell.jobs[0].token,
-            ),
+            "jobs" => {
+                for job in &shell.jobs {
+                    println!(
+                        "[{}]+  {:?}                 {} &",
+                        job.id, job.status, job.token,
+                    )
+                }
+            }
             _ => run_external(cmd, args, sterr, stout, err, append, bg, shell),
         }
     }
