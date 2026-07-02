@@ -1,4 +1,5 @@
 use crate::tokenizer::ParsedCmd;
+use crate::{Shell, jobs::Job};
 use std::{
     env,
     fs::{self, Metadata},
@@ -13,7 +14,12 @@ pub enum ShellAction {
     Exit,
 }
 
-pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> ShellAction {
+pub fn run(
+    parsed: &ParsedCmd,
+    shell: &mut Shell,
+    out: &mut dyn Write,
+    err: &mut dyn Write,
+) -> ShellAction {
     let ParsedCmd {
         cmd,
         args,
@@ -23,7 +29,7 @@ pub fn run(parsed: &ParsedCmd, out: &mut dyn Write, err: &mut dyn Write) -> Shel
         bg,
     } = parsed;
     if parsed.bg {
-        run_external(cmd, args, sterr, stout, err, append, bg);
+        run_external(cmd, args, sterr, stout, err, append, bg, shell);
     } else {
         match cmd.as_str() {
             "exit" => return ShellAction::Exit,
@@ -109,6 +115,7 @@ fn run_external(
     err: &mut dyn Write,
     append: &bool,
     bg: &bool,
+    shell: &mut Shell,
 ) {
     match find_exec(cmd) {
         Some(path) => {
@@ -138,7 +145,13 @@ fn run_external(
             }
             if *bg {
                 let child = command.spawn().unwrap();
-                println!("[1] {}", child.id());
+                println!("[{}] {}",shell.next_job_id, child.id());
+                shell.jobs.push(Job {
+                    id: shell.next_job_id,
+                    child,
+                    token: String::from(cmd),
+                    status: crate::jobs::JobStatus::Running;
+                });
             } else {
                 command.status().unwrap();
             }

@@ -1,9 +1,16 @@
+mod jobs;
 mod runner;
 mod tokenizer;
+use jobs::Job;
 #[allow(unused_imports)]
 use runner::{ShellAction, run};
 use std::{fs, io, io::Write};
 use tokenizer::tokenize;
+
+pub struct Shell {
+    pub jobs: Vec<Job>,
+    pub next_job_id: usize,
+}
 
 fn main() {
     loop {
@@ -15,6 +22,10 @@ fn main() {
             continue;
         }
         let parsed = tokenize(command.trim());
+        let mut shell = Shell {
+            jobs: Vec::new(),
+            next_job_id: 1,
+        };
         let mut file;
         let mut errfile;
         let out: &mut dyn Write = if let Some(path) = &parsed.stout {
@@ -41,7 +52,7 @@ fn main() {
         } else {
             &mut io::stderr()
         };
-        match run(&parsed, out, err) {
+        match run(&parsed, &mut shell, out, err) {
             ShellAction::Exit => break,
             ShellAction::Continue => {}
         }
