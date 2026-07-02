@@ -58,7 +58,7 @@ pub fn run(
                         job.token,
                         {
                             if job.status == JobStatus::Running {
-                                "&"
+                                " &"
                             } else {
                                 ""
                             }
