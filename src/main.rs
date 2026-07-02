@@ -56,6 +56,8 @@ fn main() {
         };
         if shell.jobs.is_empty() {
             shell.next_job_id = 1;
+        } else {
+            shell.next_job_id = shell.jobs.last().map(|job| job.id).unwrap();
         }
         match run(&parsed, &mut shell, out, err) {
             ShellAction::Exit => break,
