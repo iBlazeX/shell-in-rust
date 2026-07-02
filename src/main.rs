@@ -65,10 +65,7 @@ fn reap(shell: &mut Shell) {
         .jobs
         .retain_mut(|job| match job.child.try_wait().unwrap() {
             Some(_) => {
-                println!(
-                    "[{}]+  {:?}                 {}",
-                    job.id, job.status, job.token
-                );
+                println!("[{}]+  Done                 {}", job.id, job.token);
                 false
             }
             None => true,
