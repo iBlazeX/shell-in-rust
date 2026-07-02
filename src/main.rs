@@ -13,6 +13,10 @@ pub struct Shell {
 }
 
 fn main() {
+    let mut shell = Shell {
+        jobs: Vec::new(),
+        next_job_id: 1,
+    };
     loop {
         print!("$ ");
         io::stdout().flush().unwrap();
@@ -22,10 +26,6 @@ fn main() {
             continue;
         }
         let parsed = tokenize(command.trim());
-        let mut shell = Shell {
-            jobs: Vec::new(),
-            next_job_id: 1,
-        };
         let mut file;
         let mut errfile;
         let out: &mut dyn Write = if let Some(path) = &parsed.stout {
