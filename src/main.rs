@@ -20,7 +20,7 @@ fn main() {
         next_job_id: 1,
         history: Vec::new(),
     };
-    let i: usize;
+    let i: usize = 0;
     loop {
         reap(&mut shell);
         print!("$ ");
