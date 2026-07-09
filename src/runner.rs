@@ -40,7 +40,7 @@ pub fn run(
             "type" => type_cmd(args, out, err),
             "cat" => cat(args, out, err),
             "jobs" => job(shell),
-            "history" => history(out, shell, &args[0]),
+            "history" => history(out, shell, &args),
             _ => run_external(cmd, args, sterr, stout, err, append, bg, shell),
         }
     }
