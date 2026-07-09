@@ -120,7 +120,7 @@ fn type_cmd(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write) {
     }
     let arg = &args[0];
     match arg.as_str() {
-        "exit" | "echo" | "type" | "pwd" | "cd" | "jobs" => {
+        "exit" | "echo" | "type" | "pwd" | "cd" | "jobs" | "history" => {
             writeln!(out, "{} is a shell builtin", arg).unwrap();
         }
         _ => match find_exec(arg) {
