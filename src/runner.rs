@@ -193,7 +193,6 @@ fn run_external(
 }
 
 fn history(out: &mut dyn Write, shell: &mut Shell, args: &[String]) {
-    let b: usize = a.parse().unwrap();
     let n = if let Some(arg) = args.first() {
         arg.parse::<usize>().unwrap()
     } else {
