@@ -20,6 +20,7 @@ fn main() {
         next_job_id: 1,
         history: Vec::new(),
     };
+    let i = 0;
     loop {
         reap(&mut shell);
         print!("$ ");
@@ -29,7 +30,9 @@ fn main() {
         if command.trim().is_empty() {
             continue;
         }
-        shell.history.push(command.trim().to_string());
+        shell
+            .history
+            .push(format!("{} {}", i, command.trim().to_string()));
         let parsed = tokenize(command.trim());
         let mut file;
         let mut errfile;
