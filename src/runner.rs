@@ -194,7 +194,7 @@ fn run_external(
 
 fn history(out: &mut dyn Write, shell: &mut Shell, a: &String) {
     let n = a.parse().unwrap();
-    for i in shell.history.len()..n {
+    for i in shell.history.len() - n..n {
         writeln!(out, "{}", shell.history[i]);
     }
 }
