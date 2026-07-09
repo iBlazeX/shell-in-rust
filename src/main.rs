@@ -20,7 +20,7 @@ fn main() {
         next_job_id: 1,
         history: Vec::new(),
     };
-    let i: usize = 0;
+    let mut i: usize = 0;
     loop {
         reap(&mut shell);
         print!("$ ");
@@ -30,6 +30,7 @@ fn main() {
         if command.trim().is_empty() {
             continue;
         }
+        i += 1;
         shell
             .history
             .push(format!("{} {}", i, command.trim().to_string()));
