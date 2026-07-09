@@ -40,7 +40,7 @@ pub fn run(
             "type" => type_cmd(args, out, err),
             "cat" => cat(args, out, err),
             "jobs" => job(shell),
-            "history" => history(out, err, shell),
+            "history" => history(out, shell),
             _ => run_external(cmd, args, sterr, stout, err, append, bg, shell),
         }
     }
@@ -192,7 +192,7 @@ fn run_external(
     }
 }
 
-fn history(out: &mut dyn Write, shell: Shell) {
+fn history(out: &mut dyn Write, shell: &mut Shell) {
     let mut i = 0;
     for x in &shell.history {
         i += 1;
