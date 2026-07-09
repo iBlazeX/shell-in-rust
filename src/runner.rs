@@ -192,10 +192,15 @@ fn run_external(
     }
 }
 
-fn history(out: &mut dyn Write, shell: &mut Shell, a: &String) {
+fn history(out: &mut dyn Write, shell: &mut Shell, args: &[String]) {
     let b: usize = a.parse().unwrap();
-    let n = shell.history.len().saturating_sub(b);
-    for i in n - b..n {
-        writeln!(out, "{}", shell.history[i]).unwrap();
+    let n = if let Some(arg) = args.first() {
+        arg.parse::<usize>().unwrap()
+    } else {
+        shell.history.len()
+    };
+    let start = shell.history.len().saturating_sub(n);
+    for cmd in &shell.history[start..] {
+        writeln!(out, "{cmd}").unwrap();
     }
 }
