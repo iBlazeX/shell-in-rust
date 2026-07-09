@@ -40,6 +40,7 @@ pub fn run(
             "type" => type_cmd(args, out, err),
             "cat" => cat(args, out, err),
             "jobs" => job(shell),
+            "history" => history(out, err, shell),
             _ => run_external(cmd, args, sterr, stout, err, append, bg, shell),
         }
     }
@@ -188,5 +189,13 @@ fn run_external(
             }
         }
         None => writeln!(err, "{}: not found", cmd).unwrap(),
+    }
+}
+
+fn history(out: &mut dyn Write, shell: Shell) {
+    let mut i = 0;
+    for x in &shell.history {
+        i += 1;
+        writeln!(out, "{} {}", i, x);
     }
 }

@@ -11,12 +11,14 @@ use tokenizer::tokenize;
 pub struct Shell {
     pub jobs: Vec<Job>,
     pub next_job_id: usize,
+    pub history: Vec<String>,
 }
 
 fn main() {
     let mut shell = Shell {
         jobs: Vec::new(),
         next_job_id: 1,
+        history: Vec::new(),
     };
     loop {
         reap(&mut shell);
@@ -27,6 +29,7 @@ fn main() {
         if command.trim().is_empty() {
             continue;
         }
+        shell.history.push(command.trim().to_string());
         let parsed = tokenize(command.trim());
         let mut file;
         let mut errfile;
