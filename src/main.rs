@@ -5,6 +5,7 @@ use jobs::Job;
 use jobs::reap;
 #[allow(unused_imports)]
 use runner::{ShellAction, run};
+use rustyline::DefaultEditor;
 use std::{fs, io, io::Write};
 use tokenizer::tokenize;
 
@@ -21,14 +22,17 @@ fn main() {
         history: Vec::new(),
     };
     let mut i: usize = 0;
+    let mut rl = DefaultEditor::new().unwrap();
     loop {
         reap(&mut shell);
-        print!("$ ");
-        io::stdout().flush().unwrap();
-        let mut command = String::new();
-        io::stdin().read_line(&mut command).unwrap();
+        let command = match rl.readline("$ ") {
+            Ok(line) => line,
+            Err(_) => break,
+        };
         if command.trim().is_empty() {
             continue;
+        } else {
+            rl.add_history_entry(command.as_str()).unwrap();
         }
         i += 1;
         shell
