@@ -34,7 +34,6 @@ fn main() {
         } else {
             rl.add_history_entry(command.as_str()).unwrap();
         }
-        reap(&mut shell);
         i += 1;
         shell
             .history
@@ -75,5 +74,6 @@ fn main() {
             ShellAction::Exit => break,
             ShellAction::Continue => {}
         }
+        reap(&mut shell);
     }
 }
