@@ -232,7 +232,7 @@ fn declare(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write, shell: 
             if valid_identifier(name) {
                 shell.vars.insert(name.to_string(), value.to_string());
             } else {
-                writeln!(err, "declare: `{}`: not a valid identifier", name).unwrap();
+                writeln!(err, "declare: `{}': not a valid identifier", arg).unwrap();
             }
         }
     }
