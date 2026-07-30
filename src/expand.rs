@@ -25,15 +25,25 @@ fn expand_vars(s: &str, shell: &Shell) -> String {
             result.push(c);
             continue;
         }
-
         let mut name = String::new();
 
-        while let Some(&ch) = chars.peek() {
-            if ch == '_' || ch.is_ascii_alphanumeric() {
+        if chars.peek() == Some(&'{') {
+            chars.next();
+
+            while let Some(ch) = chars.next() {
+                if ch == '}' {
+                    break;
+                }
                 name.push(ch);
-                chars.next();
-            } else {
-                break;
+            }
+        } else {
+            while let Some(&ch) = chars.peek() {
+                if ch == '_' || ch.is_ascii_alphanumeric() {
+                    name.push(ch);
+                    chars.next();
+                } else {
+                    break;
+                }
             }
         }
 
