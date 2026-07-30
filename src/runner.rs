@@ -205,6 +205,17 @@ fn history(out: &mut dyn Write, shell: &mut Shell, args: &[String]) {
     }
 }
 
+fn valid_identifier(name: &str) -> bool {
+    let mut chars = name.chars();
+
+    match chars.next() {
+        Some(c) if c == '_' || c.is_ascii_alphabetic() => {}
+        _ => return false,
+    }
+
+    chars.all(|c| c == '_' || c.is_ascii_alphanumeric())
+}
+
 fn declare(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write, shell: &mut Shell) {
     if args.first().map(String::as_str) == Some("-p") {
         if let Some(name) = args.get(1) {
@@ -217,13 +228,12 @@ fn declare(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write, shell: 
         return;
     }
     if let Some(arg) = args.first() {
-        if arg.starts_with('_') || arg.chars().next().map_or(false, |c| c.is_alphabetic()) {
-            if let Some((name, value)) = arg.split_once('=') {
+        if let Some((name, value)) = arg.split_once('=') {
+            if valid_identifier(name) {
                 shell.vars.insert(name.to_string(), value.to_string());
-                return;
+            } else {
+                writeln!(err, "declare: `{}`: not a valid identifier", name).unwrap();
             }
-        } else {
-            writeln!(err, "declare: `{}\': not a valid identifier", arg).unwrap();
         }
     }
 }
