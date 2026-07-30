@@ -223,7 +223,7 @@ fn declare(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write, shell: 
                 return;
             }
         } else {
-            writeln!(err, "declare: {}: not a valid identifier", arg).unwrap();
+            writeln!(err, "declare: \'{}\': not a valid identifier", arg).unwrap();
         }
     }
 }
