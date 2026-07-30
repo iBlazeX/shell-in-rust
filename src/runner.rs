@@ -217,7 +217,7 @@ fn declare(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write, shell: 
         return;
     }
     if let Some(arg) = args.first() {
-        if arg[0] != '_' || c.is_ascii_alphabetic() {
+        if arg.starts_with('_') || arg.chars().next().map_or(false, |c| c.is_alphabetic()) {
             if let Some((name, value)) = arg.split_once('=') {
                 shell.vars.insert(name.to_string(), value.to_string());
                 return;
