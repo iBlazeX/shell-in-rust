@@ -48,7 +48,7 @@ fn expand_vars(s: &str, shell: &Shell) -> String {
         }
 
         if name.is_empty() {
-            result.push('$');
+            result.push(None?);
         } else if let Some(value) = shell.vars.get(&name) {
             result.push_str(value);
         }
