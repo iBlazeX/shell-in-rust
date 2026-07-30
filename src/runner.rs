@@ -41,6 +41,7 @@ pub fn run(
             "cat" => cat(args, out, err),
             "jobs" => job(shell),
             "history" => history(out, shell, &args),
+            "declare" => (),
             _ => run_external(cmd, args, sterr, stout, err, append, bg, shell),
         }
     }
@@ -121,7 +122,7 @@ fn type_cmd(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write) {
     }
     let arg = &args[0];
     match arg.as_str() {
-        "exit" | "echo" | "type" | "pwd" | "cd" | "jobs" | "history" => {
+        "exit" | "echo" | "type" | "pwd" | "cd" | "jobs" | "history" | "declare" => {
             writeln!(out, "{} is a shell builtin", arg).unwrap();
         }
         _ => match find_exec(arg) {
