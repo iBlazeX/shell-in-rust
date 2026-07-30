@@ -3,9 +3,14 @@ use crate::{Shell, tokenizer::ParsedCmd};
 pub fn expand_command(parsed: &mut ParsedCmd, shell: &Shell) {
     parsed.cmd = expand_vars(&parsed.cmd, shell);
 
+    let mut new_args = Vec::new();
     for arg in &mut parsed.args {
-        *arg = expand_vars(arg, shell);
+        let expanded = expand_vars(arg, shell);
+        if !expanded.is_empty() {
+            new_args.push(expanded);
+        }
     }
+    parsed.args = new_args;
 
     if let Some(path) = &mut parsed.stout {
         *path = expand_vars(path, shell);
