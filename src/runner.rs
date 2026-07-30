@@ -41,7 +41,7 @@ pub fn run(
             "cat" => cat(args, out, err),
             "jobs" => job(shell),
             "history" => history(out, shell, &args),
-            "declare" => (),
+            "declare" => declare(args, out, err),
             _ => run_external(cmd, args, sterr, stout, err, append, bg, shell),
         }
     }
@@ -202,5 +202,13 @@ fn history(out: &mut dyn Write, shell: &mut Shell, args: &[String]) {
     let start = shell.history.len().saturating_sub(n);
     for cmd in &shell.history[start..] {
         writeln!(out, "{cmd}").unwrap();
+    }
+}
+
+fn declare(args: &Vec<String>, out: &mut dyn Write, err: &mut dyn Write) {
+    if args.first().map(String::as_str) == Some("-p") {
+        if let Some(name) = args.get(1) {
+            writeln!(err, "declare: {}: not found", name).unwrap();
+        }
     }
 }
