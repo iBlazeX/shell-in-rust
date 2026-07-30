@@ -6,6 +6,7 @@ use jobs::reap;
 #[allow(unused_imports)]
 use runner::{ShellAction, run};
 use rustyline::DefaultEditor;
+use std::collections::HashMap;
 use std::{fs, io, io::Write};
 use tokenizer::tokenize;
 
@@ -13,6 +14,7 @@ pub struct Shell {
     pub jobs: Vec<Job>,
     pub next_job_id: usize,
     pub history: Vec<String>,
+    pub vars: HashMap<String, String>,
 }
 
 fn main() {
@@ -20,6 +22,7 @@ fn main() {
         jobs: Vec::new(),
         next_job_id: 1,
         history: Vec::new(),
+        vars: HashMap::new(),
     };
     let mut i: usize = 0;
     let mut rl = DefaultEditor::new().unwrap();
