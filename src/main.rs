@@ -3,6 +3,7 @@ mod runner;
 mod tokenizer;
 use jobs::Job;
 use jobs::reap;
+mod expand;
 #[allow(unused_imports)]
 use runner::{ShellAction, run};
 use rustyline::DefaultEditor;
@@ -27,7 +28,6 @@ fn main() {
     let mut i: usize = 0;
     let mut rl = DefaultEditor::new().unwrap();
     loop {
-        reap(&mut shell);
         let command = match rl.readline("$ ") {
             Ok(line) => line,
             Err(_) => break,
@@ -41,7 +41,7 @@ fn main() {
         shell
             .history
             .push(format!("{} {}", i, command.trim().to_string()));
-        let parsed = tokenize(command.trim());
+        let mut parsed = tokenize(command.trim());
         let mut file;
         let mut errfile;
         let out: &mut dyn Write = if let Some(path) = &parsed.stout {
@@ -73,6 +73,7 @@ fn main() {
         } else {
             shell.next_job_id = shell.jobs.last().map(|job| job.id).unwrap() + 1;
         }
+        expand::expand_command(&mut parsed, &shell);
         match run(&parsed, &mut shell, out, err) {
             ShellAction::Exit => break,
             ShellAction::Continue => {}
