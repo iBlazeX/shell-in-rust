@@ -199,3 +199,10 @@ fn declare(args: &[String], out: &mut dyn Write, err: &mut dyn Write, shell: &mu
         }
     }
 }
+
+pub fn is_builtin(cmd: &str) -> bool {
+    matches!(
+        cmd,
+        "exit" | "echo" | "pwd" | "cd" | "type" | "cat" | "jobs" | "history" | "declare"
+    )
+}

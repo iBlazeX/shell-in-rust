@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     env,
     fs::{self, Metadata},
     io::{self, Write},
@@ -6,6 +7,8 @@ use std::{
     path::PathBuf,
     process::{Command, Stdio},
 };
+
+use crate::builtin::{BuiltinResult, is_builtin, run_builtin};
 
 use crate::{
     jobs::{Job, JobStatus},
@@ -111,6 +114,83 @@ pub fn run_pipeline(commands: &[ParsedCmd]) {
 
     let left = &commands[0];
     let right = &commands[1];
+    let left_builtin = is_builtin(&left.cmd);
+    let right_builtin = is_builtin(&right.cmd);
+
+    if left_builtin && !right_builtin {
+        let mut buffer = Vec::new();
+
+        let mut shell = Shell {
+            jobs: Vec::new(),
+            next_job_id: 1,
+            history: Vec::new(),
+            vars: HashMap::new(),
+        };
+
+        let mut stderr = io::stderr();
+
+        match run_builtin(left, &mut shell, &mut buffer, &mut stderr) {
+            BuiltinResult::Exit | BuiltinResult::Continue => {}
+            BuiltinResult::NotBuiltin => unreachable!(),
+        }
+
+        let mut command = match build_command(right) {
+            Some(cmd) => cmd,
+            None => {
+                writeln!(stderr, "{}: not found", right.cmd).unwrap();
+                return;
+            }
+        };
+
+        command.stdin(Stdio::piped());
+
+        let mut child = command.spawn().unwrap();
+
+        child.stdin.as_mut().unwrap().write_all(&buffer).unwrap();
+
+        drop(child.stdin.take());
+
+        child.wait().unwrap();
+
+        return;
+    }
+
+    if !left_builtin && right_builtin {
+        let mut shell = Shell {
+            jobs: Vec::new(),
+            next_job_id: 1,
+            history: Vec::new(),
+            vars: HashMap::new(),
+        };
+
+        let mut stderr = io::stderr();
+
+        let mut command = match build_command(left) {
+            Some(cmd) => cmd,
+            None => {
+                writeln!(stderr, "{}: not found", left.cmd).unwrap();
+                return;
+            }
+        };
+
+        command.stdout(Stdio::piped());
+
+        let mut child = command.spawn().unwrap();
+
+        // We intentionally ignore the pipe output.
+        drop(child.stdout.take());
+
+        let mut out = io::stdout();
+
+        match run_builtin(right, &mut shell, &mut out, &mut stderr) {
+            BuiltinResult::Exit | BuiltinResult::Continue => {}
+            BuiltinResult::NotBuiltin => unreachable!(),
+        }
+
+        child.wait().unwrap();
+
+        return;
+    }
 
     let mut left_cmd = match build_command(left) {
         Some(cmd) => cmd,
