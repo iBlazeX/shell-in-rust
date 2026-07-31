@@ -1,6 +1,11 @@
 use std::io::Write;
 
-use crate::{builtin::run_builtin, execute::run_external, shell::Shell, tokenizer::ParsedCmd};
+use crate::{
+    builtin::{BuiltinResult, run_builtin},
+    execute::run_external,
+    shell::Shell,
+    tokenizer::ParsedCmd,
+};
 
 pub enum ShellAction {
     Continue,
@@ -13,15 +18,9 @@ pub fn run(
     out: &mut dyn Write,
     err: &mut dyn Write,
 ) -> ShellAction {
-    if parsed.cmd == "exit" {
-        return ShellAction::Exit;
+    match run_builtin(parsed, shell, out, err) {
+        BuiltinResult::Continue => ShellAction::Continue,
+        BuiltinResult::Exit => ShellAction::Exit,
+        BuiltinResult::NotBuiltin => run_external(parsed, shell, err),
     }
-
-    if run_builtin(parsed, shell, out, err) {
-        return ShellAction::Continue;
-    }
-
-    run_external(parsed, shell, err);
-
-    ShellAction::Continue
 }

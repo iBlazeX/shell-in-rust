@@ -5,46 +5,62 @@ use std::{
     io::Write,
 };
 
+pub enum BuiltinResult {
+    NotBuiltin,
+    Continue,
+    Exit,
+}
+
 pub fn run_builtin(
     parsed: &ParsedCmd,
     shell: &mut Shell,
     out: &mut dyn Write,
     err: &mut dyn Write,
-) -> bool {
+) -> BuiltinResult {
     match parsed.cmd.as_str() {
+        "exit" => BuiltinResult::Exit,
+
         "echo" => {
             echo(&parsed.args, out);
-            true
+            BuiltinResult::Continue
         }
+
         "pwd" => {
             pwd(out);
-            true
+            BuiltinResult::Continue
         }
+
         "cd" => {
             cd(&parsed.args, err);
-            true
+            BuiltinResult::Continue
         }
+
         "type" => {
             type_cmd(&parsed.args, out, err);
-            true
+            BuiltinResult::Continue
         }
+
         "cat" => {
             cat(&parsed.args, out, err);
-            true
+            BuiltinResult::Continue
         }
+
         "jobs" => {
             jobs(shell);
-            true
+            BuiltinResult::Continue
         }
+
         "history" => {
             history(out, shell, &parsed.args);
-            true
+            BuiltinResult::Continue
         }
+
         "declare" => {
             declare(&parsed.args, out, err, shell);
-            true
+            BuiltinResult::Continue
         }
-        _ => false,
+
+        _ => BuiltinResult::NotBuiltin,
     }
 }
 
