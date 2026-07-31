@@ -1,3 +1,4 @@
+mod builtin;
 mod execute;
 mod expand;
 mod jobs;
