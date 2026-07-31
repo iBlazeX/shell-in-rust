@@ -1,5 +1,4 @@
 use std::{
-    collections::HashMap,
     env,
     fs::{self, Metadata},
     io::{self, Write},
@@ -104,7 +103,7 @@ pub fn run_external(parsed: &ParsedCmd, shell: &mut Shell, err: &mut dyn Write) 
     ShellAction::Continue
 }
 
-pub fn run_pipeline(commands: &[ParsedCmd]) {
+pub fn run_pipeline(commands: &[ParsedCmd], shell: &mut Shell) {
     let mut err = io::stderr();
 
     if commands.len() != 2 {
@@ -120,16 +119,9 @@ pub fn run_pipeline(commands: &[ParsedCmd]) {
     if left_builtin && !right_builtin {
         let mut buffer = Vec::new();
 
-        let mut shell = Shell {
-            jobs: Vec::new(),
-            next_job_id: 1,
-            history: Vec::new(),
-            vars: HashMap::new(),
-        };
-
         let mut stderr = io::stderr();
 
-        match run_builtin(left, &mut shell, &mut buffer, &mut stderr) {
+        match run_builtin(left, shell, &mut buffer, &mut stderr) {
             BuiltinResult::Exit | BuiltinResult::Continue => {}
             BuiltinResult::NotBuiltin => unreachable!(),
         }
@@ -156,13 +148,6 @@ pub fn run_pipeline(commands: &[ParsedCmd]) {
     }
 
     if !left_builtin && right_builtin {
-        let mut shell = Shell {
-            jobs: Vec::new(),
-            next_job_id: 1,
-            history: Vec::new(),
-            vars: HashMap::new(),
-        };
-
         let mut stderr = io::stderr();
 
         let mut command = match build_command(left) {
@@ -182,12 +167,32 @@ pub fn run_pipeline(commands: &[ParsedCmd]) {
 
         let mut out = io::stdout();
 
-        match run_builtin(right, &mut shell, &mut out, &mut stderr) {
+        match run_builtin(right, shell, &mut out, &mut stderr) {
             BuiltinResult::Exit | BuiltinResult::Continue => {}
             BuiltinResult::NotBuiltin => unreachable!(),
         }
 
         child.wait().unwrap();
+
+        return;
+    }
+
+    if left_builtin && right_builtin {
+        let mut stderr = io::stderr();
+
+        let mut buffer = Vec::new();
+
+        match run_builtin(left, shell, &mut buffer, &mut stderr) {
+            BuiltinResult::Exit | BuiltinResult::Continue => {}
+            BuiltinResult::NotBuiltin => unreachable!(),
+        }
+
+        let mut out = io::stdout();
+
+        match run_builtin(right, shell, &mut out, &mut stderr) {
+            BuiltinResult::Exit | BuiltinResult::Continue => {}
+            BuiltinResult::NotBuiltin => unreachable!(),
+        }
 
         return;
     }

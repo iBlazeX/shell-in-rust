@@ -104,7 +104,7 @@ fn main() {
                 ShellAction::Continue => {}
             }
         } else {
-            run_pipeline(&commands);
+            run_pipeline(&commands, &mut shell);
         }
 
         reap(&mut shell);
