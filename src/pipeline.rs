@@ -1,12 +1,12 @@
 use std::{
     fs,
     io::{self, Write},
-    process::Stdio,
+    process::{Child, ChildStdout, Stdio},
 };
 
 use crate::{
     builtin::{BuiltinResult, run_builtin},
-    execute::build_command,
+    execute::{build_command, spawn_external},
     shell::Shell,
     tokenizer::ParsedCmd,
 };
@@ -67,7 +67,7 @@ fn run_external_stage(parsed: &ParsedCmd, input: Option<Vec<u8>>) -> io::Result<
     Ok(output.stdout)
 }
 
-pub fn run_pipeline(commands: &[ParsedCmd], shell: &mut Shell) {
+fn run_buffered_pipeline(commands: &[ParsedCmd], shell: &mut Shell) {
     let mut next_input: Option<Vec<u8>> = None;
 
     for parsed in commands {
@@ -102,5 +102,45 @@ pub fn run_pipeline(commands: &[ParsedCmd], shell: &mut Shell) {
                 io::stdout().flush().unwrap();
             }
         }
+    }
+}
+
+fn run_external_pipeline(commands: &[ParsedCmd]) {
+    let mut children: Vec<Child> = Vec::new();
+    let mut previous_stdout: Option<ChildStdout> = None;
+
+    for (i, parsed) in commands.iter().enumerate() {
+        let stdin = previous_stdout.take().map(Stdio::from);
+        let is_last = i == commands.len() - 1;
+        let stdout = if is_last { None } else { Some(Stdio::piped()) };
+
+        let mut child = match spawn_external(parsed, stdin, stdout, None) {
+            Ok(child) => child,
+            Err(_) => {
+                writeln!(io::stderr(), "{}: not found", parsed.cmd).unwrap();
+                for mut child in children {
+                    let _ = child.wait();
+                }
+                return;
+            }
+        };
+
+        if !is_last {
+            previous_stdout = child.stdout.take();
+        }
+
+        children.push(child);
+    }
+
+    for mut child in children {
+        let _ = child.wait();
+    }
+}
+
+pub fn run_pipeline(commands: &[ParsedCmd], shell: &mut Shell) {
+    if commands.iter().any(|parsed| crate::builtin::is_builtin(&parsed.cmd)) {
+        run_buffered_pipeline(commands, shell);
+    } else {
+        run_external_pipeline(commands);
     }
 }
