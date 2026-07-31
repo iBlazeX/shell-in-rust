@@ -40,11 +40,6 @@ pub fn run_builtin(
             BuiltinResult::Continue
         }
 
-        "cat" => {
-            cat(&parsed.args, out, err);
-            BuiltinResult::Continue
-        }
-
         "jobs" => {
             jobs(shell);
             BuiltinResult::Continue
@@ -98,7 +93,7 @@ fn type_cmd(args: &[String], out: &mut dyn Write, err: &mut dyn Write) {
     let arg = &args[0];
 
     match arg.as_str() {
-        "exit" | "echo" | "pwd" | "cd" | "type" | "cat" | "jobs" | "history" | "declare" => {
+        "exit" | "echo" | "pwd" | "cd" | "type" | "jobs" | "history" | "declare" => {
             writeln!(out, "{} is a shell builtin", arg).unwrap();
         }
         _ => match crate::execute::find_exec(arg) {
@@ -203,6 +198,6 @@ fn declare(args: &[String], out: &mut dyn Write, err: &mut dyn Write, shell: &mu
 pub fn is_builtin(cmd: &str) -> bool {
     matches!(
         cmd,
-        "exit" | "echo" | "pwd" | "cd" | "type" | "cat" | "jobs" | "history" | "declare"
+        "exit" | "echo" | "pwd" | "cd" | "type" | "jobs" | "history" | "declare"
     )
 }
