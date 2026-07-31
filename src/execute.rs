@@ -1,27 +1,20 @@
 use std::{
     env,
     fs::{self, Metadata},
-    io::{self, Write},
+    io,
     os::unix::{fs::PermissionsExt, process::CommandExt},
     path::PathBuf,
-    process::{Command, Stdio},
+    process::{Child, Command, Stdio},
 };
 
-use crate::builtin::{BuiltinResult, is_builtin, run_builtin};
-
-use crate::{
-    jobs::{Job, JobStatus},
-    runner::ShellAction,
-    shell::Shell,
-    tokenizer::ParsedCmd,
-};
+use crate::tokenizer::ParsedCmd;
 
 fn is_exec(meta: &Metadata) -> bool {
     meta.permissions().mode() & 0o111 != 0
 }
 
 pub fn find_exec(cmd: &str) -> Option<PathBuf> {
-    let path = env::var_os("PATH").unwrap();
+    let path = env::var_os("PATH")?;
 
     for dir in env::split_paths(&path) {
         let candidate = dir.join(cmd);
@@ -30,7 +23,7 @@ pub fn find_exec(cmd: &str) -> Option<PathBuf> {
             continue;
         }
 
-        let meta = fs::metadata(&candidate).unwrap();
+        let meta = fs::metadata(&candidate).ok()?;
 
         if is_exec(&meta) {
             return Some(candidate);
@@ -40,189 +33,55 @@ pub fn find_exec(cmd: &str) -> Option<PathBuf> {
     None
 }
 
-fn build_command(parsed: &ParsedCmd) -> Option<Command> {
+pub fn build_command(parsed: &ParsedCmd) -> Option<Command> {
     let path = find_exec(&parsed.cmd)?;
 
     let mut command = Command::new(path);
+
     command.arg0(&parsed.cmd);
     command.args(&parsed.args);
 
     Some(command)
 }
 
-pub fn run_external(parsed: &ParsedCmd, shell: &mut Shell, err: &mut dyn Write) -> ShellAction {
-    let mut command = match build_command(parsed) {
-        Some(cmd) => cmd,
-        None => {
-            writeln!(err, "{}: not found", parsed.cmd).unwrap();
-            return ShellAction::Continue;
-        }
-    };
+pub fn spawn_external(
+    parsed: &ParsedCmd,
+    stdin: Option<Stdio>,
+    stdout: Option<Stdio>,
+    stderr: Option<Stdio>,
+) -> io::Result<Child> {
+    let mut command = build_command(parsed)
+        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "command not found"))?;
 
-    if let Some(path) = &parsed.stout {
+    if let Some(stdin) = stdin {
+        command.stdin(stdin);
+    }
+
+    if let Some(stdout) = stdout {
+        command.stdout(stdout);
+    } else if let Some(path) = &parsed.stout {
         let file = fs::File::options()
             .create(true)
             .write(true)
             .append(parsed.append)
             .truncate(!parsed.append)
-            .open(path)
-            .unwrap();
+            .open(path)?;
 
-        command.stdout(file);
+        command.stdout(Stdio::from(file));
     }
 
-    if let Some(path) = &parsed.sterr {
+    if let Some(stderr) = stderr {
+        command.stderr(stderr);
+    } else if let Some(path) = &parsed.sterr {
         let file = fs::File::options()
             .create(true)
             .write(true)
             .append(parsed.append)
             .truncate(!parsed.append)
-            .open(path)
-            .unwrap();
+            .open(path)?;
 
-        command.stderr(file);
+        command.stderr(Stdio::from(file));
     }
 
-    if parsed.bg {
-        let child = command.spawn().unwrap();
-
-        println!("[{}] {}", shell.next_job_id, child.id());
-
-        shell.jobs.push(Job {
-            id: shell.next_job_id,
-            child,
-            token: format!("{} {}", parsed.cmd, parsed.args.join(" ")),
-            status: JobStatus::Running,
-        });
-
-        shell.next_job_id += 1;
-    } else {
-        command.status().unwrap();
-    }
-
-    ShellAction::Continue
-}
-
-pub fn run_pipeline(commands: &[ParsedCmd], shell: &mut Shell) {
-    let mut err = io::stderr();
-
-    if commands.len() != 2 {
-        writeln!(err, "Only two-command pipelines are supported").unwrap();
-        return;
-    }
-
-    let left = &commands[0];
-    let right = &commands[1];
-    let left_builtin = is_builtin(&left.cmd);
-    let right_builtin = is_builtin(&right.cmd);
-
-    if left_builtin && !right_builtin {
-        let mut buffer = Vec::new();
-
-        let mut stderr = io::stderr();
-
-        match run_builtin(left, shell, &mut buffer, &mut stderr) {
-            BuiltinResult::Exit | BuiltinResult::Continue => {}
-            BuiltinResult::NotBuiltin => unreachable!(),
-        }
-
-        let mut command = match build_command(right) {
-            Some(cmd) => cmd,
-            None => {
-                writeln!(stderr, "{}: not found", right.cmd).unwrap();
-                return;
-            }
-        };
-
-        command.stdin(Stdio::piped());
-
-        let mut child = command.spawn().unwrap();
-
-        child.stdin.as_mut().unwrap().write_all(&buffer).unwrap();
-
-        drop(child.stdin.take());
-
-        child.wait().unwrap();
-
-        return;
-    }
-
-    if !left_builtin && right_builtin {
-        let mut stderr = io::stderr();
-
-        let mut command = match build_command(left) {
-            Some(cmd) => cmd,
-            None => {
-                writeln!(stderr, "{}: not found", left.cmd).unwrap();
-                return;
-            }
-        };
-
-        command.stdout(Stdio::piped());
-
-        let mut child = command.spawn().unwrap();
-
-        // We intentionally ignore the pipe output.
-        drop(child.stdout.take());
-
-        let mut out = io::stdout();
-
-        match run_builtin(right, shell, &mut out, &mut stderr) {
-            BuiltinResult::Exit | BuiltinResult::Continue => {}
-            BuiltinResult::NotBuiltin => unreachable!(),
-        }
-
-        child.wait().unwrap();
-
-        return;
-    }
-
-    if left_builtin && right_builtin {
-        let mut stderr = io::stderr();
-
-        let mut buffer = Vec::new();
-
-        match run_builtin(left, shell, &mut buffer, &mut stderr) {
-            BuiltinResult::Exit | BuiltinResult::Continue => {}
-            BuiltinResult::NotBuiltin => unreachable!(),
-        }
-
-        let mut out = io::stdout();
-
-        match run_builtin(right, shell, &mut out, &mut stderr) {
-            BuiltinResult::Exit | BuiltinResult::Continue => {}
-            BuiltinResult::NotBuiltin => unreachable!(),
-        }
-
-        return;
-    }
-
-    let mut left_cmd = match build_command(left) {
-        Some(cmd) => cmd,
-        None => {
-            writeln!(err, "{}: not found", left.cmd).unwrap();
-            return;
-        }
-    };
-
-    let mut right_cmd = match build_command(right) {
-        Some(cmd) => cmd,
-        None => {
-            writeln!(err, "{}: not found", right.cmd).unwrap();
-            return;
-        }
-    };
-
-    left_cmd.stdout(Stdio::piped());
-
-    let mut left_child = left_cmd.spawn().unwrap();
-
-    let stdout = left_child.stdout.take().unwrap();
-
-    right_cmd.stdin(Stdio::from(stdout));
-
-    let mut right_child = right_cmd.spawn().unwrap();
-
-    left_child.wait().unwrap();
-    right_child.wait().unwrap();
+    command.spawn()
 }
