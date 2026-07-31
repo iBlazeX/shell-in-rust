@@ -1,4 +1,4 @@
-use crate::Shell;
+use crate::shell::Shell;
 use std::process::Child;
 
 pub struct Job {

@@ -1,6 +1,7 @@
+use crate::jobs::Job;
 use crate::jobs::JobStatus;
+use crate::shell::Shell;
 use crate::tokenizer::ParsedCmd;
-use crate::{Shell, jobs::Job};
 use std::{
     env,
     fs::{self, Metadata},
@@ -80,7 +81,7 @@ fn job(shell: &mut Shell) {
 fn is_exec(meta: &Metadata) -> bool {
     meta.permissions().mode() & 0o111 != 0
 }
-fn find_exec(cmd: &str) -> Option<PathBuf> {
+pub fn find_exec(cmd: &str) -> Option<PathBuf> {
     let path = env::var_os("PATH").unwrap();
     for dir in env::split_paths(&path) {
         let candidate = dir.join(cmd);

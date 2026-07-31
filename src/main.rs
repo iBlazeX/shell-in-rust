@@ -1,10 +1,14 @@
+mod execute;
 mod expand;
 mod jobs;
 mod runner;
+mod shell;
 mod tokenizer;
 
+use crate::execute::run_pipeline;
+use crate::shell::Shell;
 use expand::expand_command;
-use jobs::{Job, reap};
+use jobs::reap;
 use runner::{ShellAction, run};
 use rustyline::DefaultEditor;
 use std::{
@@ -13,13 +17,6 @@ use std::{
     io::{self, Write},
 };
 use tokenizer::{ParsedCmd, tokenize};
-
-pub struct Shell {
-    pub jobs: Vec<Job>,
-    pub next_job_id: usize,
-    pub history: Vec<String>,
-    pub vars: HashMap<String, String>,
-}
 
 fn parse_commands(line: &str) -> Vec<ParsedCmd> {
     line.split('|').map(|cmd| tokenize(cmd.trim())).collect()
@@ -70,7 +67,7 @@ fn main() {
         update_next_job_id(&mut shell);
 
         if commands.len() == 1 {
-            let parsed = &mut commands[0];
+            let parsed = &commands[0];
 
             let mut file;
             let mut errfile;
@@ -106,7 +103,7 @@ fn main() {
                 ShellAction::Continue => {}
             }
         } else {
-            // run_pipeline(&commands, &mut shell);
+            run_pipeline(&commands);
         }
 
         reap(&mut shell);

@@ -1,4 +1,5 @@
-use crate::{Shell, tokenizer::ParsedCmd};
+use crate::shell::Shell;
+use crate::tokenizer::ParsedCmd;
 
 pub fn expand_command(parsed: &mut ParsedCmd, shell: &Shell) {
     parsed.cmd = expand_vars(&parsed.cmd, shell);
