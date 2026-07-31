@@ -41,7 +41,7 @@ pub fn run_builtin(
         }
 
         "jobs" => {
-            jobs(shell);
+            jobs(shell, out);
             BuiltinResult::Continue
         }
 
@@ -116,7 +116,7 @@ fn cat(args: &[String], out: &mut dyn Write, err: &mut dyn Write) {
     }
 }
 
-fn jobs(shell: &mut Shell) {
+fn jobs(shell: &mut Shell, out: &mut dyn Write) {
     let len = shell.jobs.len();
 
     for (i, job) in shell.jobs.iter_mut().enumerate() {
@@ -130,7 +130,8 @@ fn jobs(shell: &mut Shell) {
             _ => " ",
         };
 
-        println!(
+        writeln!(
+            out,
             "[{}]{}  {:?}                 {}{}",
             job.id,
             marker,
@@ -141,7 +142,8 @@ fn jobs(shell: &mut Shell) {
             } else {
                 ""
             }
-        );
+        )
+        .unwrap();
     }
 
     shell.jobs.retain(|job| job.status != JobStatus::Done);
