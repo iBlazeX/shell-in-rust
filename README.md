@@ -1,35 +1,42 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/8b0e97fa-d97f-49bf-9446-d655c88c33ba)](https://app.codecrafters.io/users/iBlazeX?r=2qF)
+# Rust Shell
 
-This is a starting point for Rust solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+A lightweight Unix-like command-line shell built in Rust to explore systems programming concepts and process management.
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+## Features
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+- Execute external commands
+- Built-in commands (`cd`, `exit`)
+- Command parsing and argument handling
+- Interactive shell prompt
+- Error handling for invalid commands
 
-# Passing the first stage
+## Learning Objectives
 
-The entry point for your `shell` implementation is in `src/main.rs`. Study and
-uncomment the relevant code, then run the command below to execute the tests on
-our servers:
+This project was built to gain hands-on experience with:
+- Process creation and management
+- Command parsing
+- File system navigation
+- Input/output handling
+- Systems programming in Rust
 
-```sh
-codecrafters submit
+## Getting Started
+
+```bash
+cargo run
 ```
 
-Time to move on to the next stage!
+## Example
 
-# Stage 2 & beyond
+```bash
+> pwd
+/home/user
 
-Note: This section is for stages 2 and beyond.
+> ls
+Documents  Downloads  Projects
 
-1. Ensure you have `cargo (1.95)` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `src/main.rs`. This command compiles your Rust project, so it might be slow
-   the first time you run it. Subsequent runs will be fast.
-1. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
-   output will be streamed to your terminal.
+> cd Projects
+
+> cargo run
+
+> exit
+```
